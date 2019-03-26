@@ -1,5 +1,8 @@
-set nocompatible              " be iMproved, required
-filetype off                  " required
+"====================================================
+"               VIM DEFAULT CONFIGS
+"====================================================
+
+set nocompatible
 set number
 set nowrap
 set nobackup
@@ -8,14 +11,16 @@ set tabstop=4
 syntax on
 filetype plugin on
 filetype plugin indent on
-
+let mapleader = "," 
 set background=dark
 
-" set the runtime path to include Vundle and initialize
-"-----------------------------------------------------
+
+"====================================================
+"                  VUNDLE SETUP
+"====================================================
+
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
-	" let Vundle manage Vundle, required
 	Plugin 'VundleVim/Vundle.vim'
 
 	Plugin 'eagletmt/ghcmod-vim'
@@ -23,7 +28,8 @@ call vundle#begin()
 	Plugin 'derekwyatt/vim-scala'
 
 	"Vim Functionality
-	
+	Plugin 'ensime/ensime-vim'
+	Plugin 'junegunn/fzf'
 
 	"Web Dev
 	Plugin 'othree/html5.vim'
@@ -34,14 +40,19 @@ call vundle#begin()
 	Plugin 'plasticboy/vim-markdown'
 	Plugin 'elzr/vim-json'
 	Plugin 'stephpy/vim-yaml'
+call vundle#end()
 
-	" plugin from http://vim-scripts.org/vim/scripts.html
-	" Plugin 'L9'
 
-call vundle#end()            " required
-"-----------------------------------------------------
+"====================================================
+"                 PLUGIN CONFIGS
+"====================================================
 
-" Set some keys for Haskell type checking
+
+"-----------HASKELL-------------
 noremap <Leader>ht :GhcModType<cr>
 nnoremap <Leader>htc :GhcModTypeClear<cr>
 
+
+"------------SCALA-----------------
+autocmd BufWritePost *.scala silent :EnTypeCheck
+au FileType scala nnoremap <localleader>df :EnDeclaration<CR>
