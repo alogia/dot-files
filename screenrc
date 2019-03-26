@@ -1,0 +1,20 @@
+#
+# 256 COLOR SUPPORT
+#
+# Set terminfo and termcap for nice 256 color terminal
+# Allow bold colors - necessary for some reason
+#attrcolor b ".I" 
+shelltitle "$ |bash"
+
+# Tell screen how to set colors. AB = background, AF=foreground 
+#termcapinfo xterm 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm' 
+terminfo rxvt-unicode 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm'
+
+# By default, screen uses an 8-color terminal emulator. Use the
+# following line to enable more colors
+term screen-256color
+startup_message off
+
+hardstatus alwayslastline
+#hardstatus string '%{= kG}%-Lw%{= kW}%50> %n%f* %t%{= kG}%+Lw%< %{= kG}%-=%c:%s%{-}'
+hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B} %m-%d %{W}%c %{g}]'

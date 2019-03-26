@@ -1,0 +1,9 @@
+[user]
+	name = Tyler Thomas
+	email = alogia@gmail.com
+[core]
+	editor = vim
+[push]
+	default = simple
+[credential]
+	helper = cache --timeout=3600
