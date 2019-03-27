@@ -1,13 +1,27 @@
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-# Lines configured by zsh-newuser-install
-HISTFILE=~/.histfile
-HISTSIZE=1000
-SAVEHIST=1000
-bindkey -v
-# End of lines configured by zsh-newuser-install
-# The following lines were added by compinstall
-zstyle :compinstall filename '/home/phetus/.zshrc'
+###########################################
+# 			ANTIGEN SETUP
+###########################################
+source /usr/share/zsh/share/antigen.zsh
+antigen use oh-my-zsh
 
-autoload -Uz compinit
-compinit
-# End of lines added by compinstall
+# Bundles from the default repo (robbyrussell's oh-my-zsh).
+antigen bundle git
+antigen bundle zsh-users/zsh-syntax-highlighting
+antigen bundle zsh-users/zsh-history-substring-search
+antigen bundle joel-porquet/zsh-dircolors-solarized.git
+
+
+antigen theme af-magic
+antigen apply
+
+############################################
+#				EXPORTS
+############################################
+export GEM_HOME="$HOME/gems"
+export PATH="$PATH:$HOME/bin:$(ruby -e 'print Gem.user_dir')/bin"
+
+############################################
+#			  KEY BINDINGS   
+############################################
+bindkey '^[n' history-substring-search-up
+bindkey '^[t' history-substring-search-down
