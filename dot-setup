@@ -45,7 +45,7 @@ case $arg in
 		try_link xorg/Xresources .Xresources
 		;;
 	xmonad)
-		try_link xmonad/xmonad.hs .xmonad/.xmonad.hs
+		try_link xmonad/xmonad.hs .xmonad/xmonad.hs
 		;;
 	git)
 		try_link etc/gitconfig .gitconfig
