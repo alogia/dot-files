@@ -1,0 +1,63 @@
+#!/bin/bash
+
+function raise_error {
+	local error_message="$@"
+    echo "${error_message}" 1>&2;
+}
+
+function print_usage {
+	echo "Usage: buff up|down|status"
+}
+
+function try_link { 
+	if [ ! -f ~/$2 ]; then
+		ln -v -s `pwd`/$1 ~/$2
+	else 
+		echo "File ${2} already exists: skipping..."
+	fi
+}
+
+
+arg=$1
+
+case $arg in
+	vim)
+		try_link vim/vimrc .vimrc
+		;;
+	zsh)
+		try_link zsh/zshrc.sh .zshrc
+		try_link zsh/keybindings.sh .keybindings
+		;;
+	emacs)
+		try_link emacs/emacs.el .emacs.el
+		try_link emacs/sbclrc .sbclrc
+		;;
+	screen)
+		try_link etc/screenrc .screenrc
+		;;
+	bash)
+		try_link bash/bash_profile.sh .bash_profile
+		try_link bash/bashrc.sh .bashrc
+		try_link bash/bash_aliases.sh .bash_aliases
+		;;
+	xorg)
+		try_link xorg/xinitrc .xinitrc
+		try_link xorg/Xresources .Xresources
+		;;
+	xmonad)
+		try_link xmonad/xmonad.hs .xmonad/.xmonad.hs
+		;;
+	git)
+		try_link etc/gitconfig .gitconfig
+		;;
+	rtorrent)
+		try_link etc/rtorrent.rc .rtorrent.rc
+		;;
+	vifm)
+		try_link etc/vifmrc .vifm/vifmrc
+		;;
+	*)
+		raise_error
+		print_usage
+		;;
+esac
