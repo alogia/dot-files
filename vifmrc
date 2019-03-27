@@ -1,0 +1,7 @@
+filetype *.html,*.htm lynx
+
+filetype *.mp3,*.mp4,*.wav,*.mkv,*.avi,*.mov,*.m4v mplayer -zoom %f 2>/dev/null &
+
+filetype *.pdf evince %f &
+
+filetype *.jpg,*.jpeg,*.gif,*.JPEG feh %f &

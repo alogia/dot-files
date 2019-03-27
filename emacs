@@ -199,23 +199,21 @@
 (defun open-next-line (arg)
   "Move to the next line and then opens a line.
     See also `newline-and-indent'."
-  (interactive "p")
+  (interactive)
   (end-of-line)
-  (open-line arg)
-  (next-line 1)
-  (when newline-and-indent
-    (indent-according-to-mode)))
+  (call-interactively '(open-line arg))
+  (forward-line)
+  (indent-according-to-mode))
 
 
 ;; Behave like vi's O command
 (defun open-previous-line (arg)
   "Open a new line before the current one. 
      See also `newline-and-indent'."
-  (interactive "p")
+  (interactive)
   (beginning-of-line)
-  (open-line arg)
-  (when newline-and-indent
-    (indent-according-to-mode)))
+  (call-interactively '(open-line arg))
+  (indent-according-to-mode))
 
 
 
@@ -234,12 +232,10 @@
  ("M-l"   . forward-word)
  ("C-n"   . move-end-of-line)
  ("S-SPC" . set-mark-command)
- ("C-q"   . iflipb-next-buffer)
- ("C-;"   . iflipb-previous-buffer)
  ("<f7>"  . flyspell-mode)
  ("<f8>"  . flyspell-auto-correct-word)
- ("M-o"   .   open-previous-line)
- ("C-o"   .open-next-line)
+ ("M-o"   .  open-previous-line)
+ ("C-o"   .  open-next-line)
  ("C-c C-w" . my-cut-to-xclipboard)
  ("C-c M-w" . my-copy-to-xclipboard)
  ("C-c C-y" . my-paste-from-xclipboard)
@@ -345,9 +341,9 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Setup Slime
+;; Setup Slime mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package slime
+(use-package slime-mode
 	:ensure t
 	:init 
 	:config
