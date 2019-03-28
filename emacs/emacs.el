@@ -208,7 +208,7 @@
 
 ;; Behave like vi's O command
 (defun open-previous-line (arg)
-  "Open a new line before the current one. 
+  "Open a new line before the current one.
      See also `newline-and-indent'."
   (interactive)
   (beginning-of-line)
@@ -332,7 +332,7 @@
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Tramp 
+;; Tramp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package tramp
 	:ensure t
@@ -343,15 +343,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Setup Slime mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package slime-mode
+(use-package slime
 	:ensure t
-	:init 
+	:init
 	:config
 	(setq slime-contribs '(slime-fancy))
 	(setq inferior-lisp-program "/usr/bin/sbcl")
-	(add-hook 'lisp-mode-hook 
+	(add-hook 'lisp-mode-hook
 		  (lambda () (slime-mode t)))
-	(add-hook 'inferior-lisp-mode-hook 
+	(add-hook 'inferior-lisp-mode-hook
 		  (lambda () (inferior-slime-mode t))))
 
 (use-package counsel
@@ -1220,7 +1220,7 @@ Please set my:ycmd-server-command appropriately in ~/.emacs.el.\n"
 
 ;; Hide the scroll bar
 (scroll-bar-mode -1)
-(defvar my-font-size 90)
+(defvar my-font-size 120)
 ;; Make mode bar small
 (set-face-attribute 'mode-line nil  :height my-font-size)
 ;; Set the header bar font
@@ -1231,7 +1231,7 @@ Please set my:ycmd-server-command appropriately in ~/.emacs.el.\n"
         (width . 110) (height . 90) ;; size
         ))
 ;; Enable line numbers on the LHS
-(global-linum-mode -1)
+(global-linum-mode 1)
 ;; Set the font to size 9 (90/10).
 (set-face-attribute 'default nil :height my-font-size)
 
@@ -1389,3 +1389,18 @@ Please set my:ycmd-server-command appropriately in ~/.emacs.el.\n"
 
 (provide '.emacs)
 ;;; .emacs ends here
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(git-gutter:update-interval 5)
+ '(package-selected-packages
+   (quote
+    (slime-mode zzz-to-char ycm yasnippet-snippets yapfify yaml-mode writegood-mode window-numbering which-key wgrep web-mode vlf use-package string-inflection sourcerer-theme slime-company rtags realgud rainbow-delimiters powerline origami org-link-minor-mode multiple-cursors modern-cpp-font-lock markdown-mode magit-gerrit levenshtein json-mode imenu-anywhere iflipb hungry-delete haskell-tab-indent haskell-snippets haskell-mode google-c-style git-gutter flyspell-correct-ivy flycheck-ycmd flycheck-pyflakes elpy ein edit-server diminish cuda-mode counsel-etags company-ycmd company-jedi cmake-font-lock clang-format beacon autopair auto-package-update auctex ace-jump-buffer 0blayout))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(which-func ((t (:foreground "#8fb28f")))))

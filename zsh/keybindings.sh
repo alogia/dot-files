@@ -5,6 +5,7 @@ bindkey -v
 bindkey '^[n' history-substring-search-up
 bindkey '^[t' history-substring-search-down
 HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
+KEYTIMEOUT=1
 
 ###################################
 # 			CUSTOM
@@ -41,7 +42,7 @@ HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
 		zle accept-line
 	}
 	zle -N ctrl_l
-	bindkey "^l" ctrl_l
+	bindkey "^[l" ctrl_l
 
 # Enter
 	function enter_line() {
