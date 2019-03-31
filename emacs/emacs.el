@@ -197,8 +197,6 @@
 
 ;; Behave like vi's o command
 (defun open-next-line (arg)
-  "Move to the next line and then opens a line.
-    See also `newline-and-indent'."
   (interactive)
   (end-of-line)
   (call-interactively '(open-line arg))
@@ -208,8 +206,6 @@
 
 ;; Behave like vi's O command
 (defun open-previous-line (arg)
-  "Open a new line before the current one.
-     See also `newline-and-indent'."
   (interactive)
   (beginning-of-line)
   (call-interactively '(open-line arg))
@@ -232,6 +228,7 @@
  ("M-l"   . forward-word)
  ("C-n"   . move-end-of-line)
  ("S-SPC" . set-mark-command)
+ ("<f6>"  . linum-mode)
  ("<f7>"  . flyspell-mode)
  ("<f8>"  . flyspell-auto-correct-word)
  ("M-o"   .  open-previous-line)
@@ -1220,7 +1217,7 @@ Please set my:ycmd-server-command appropriately in ~/.emacs.el.\n"
 
 ;; Hide the scroll bar
 (scroll-bar-mode -1)
-(defvar my-font-size 120)
+(defvar my-font-size 90)
 ;; Make mode bar small
 (set-face-attribute 'mode-line nil  :height my-font-size)
 ;; Set the header bar font
@@ -1231,7 +1228,7 @@ Please set my:ycmd-server-command appropriately in ~/.emacs.el.\n"
         (width . 110) (height . 90) ;; size
         ))
 ;; Enable line numbers on the LHS
-(global-linum-mode 1)
+(global-linum-mode -1)
 ;; Set the font to size 9 (90/10).
 (set-face-attribute 'default nil :height my-font-size)
 
