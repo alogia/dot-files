@@ -1,10 +1,3 @@
-
-;; Specify the ycmd server command and path to the ycmd directory *inside* the
-;; cloned ycmd directory
-(defvar my:ycmd-server-command '("python" "/usr/share/ycmd/ycmd/"))
-(defvar my:ycmd-extra-conf-whitelist '("~/.ycm_extra_conf.py"))
-(defvar my:ycmd-global-config "~/.ycm_extra_conf.py")
-
 ;; Specify the jupyter executable name, and the start dir of the server
 (defvar my:jupyter_location (executable-find "jupyter"))
 (defvar my:jupyter_start_dir "/home/phetus")
@@ -246,7 +239,7 @@
   :ensure t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; s is used by ycmd, origami, etc and sometimes during Emacs
+;; s is used by origami, etc and sometimes during Emacs
 ;; upgrades disappears so we try to install it on its own.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package s
@@ -341,15 +334,18 @@
 ;; Setup Slime mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package slime
-	:ensure t
-	:init
-	:config
-	(setq slime-contribs '(slime-fancy))
-	(setq inferior-lisp-program "/usr/bin/sbcl")
-	(add-hook 'lisp-mode-hook
-		  (lambda () (slime-mode t)))
-	(add-hook 'inferior-lisp-mode-hook
-		  (lambda () (inferior-slime-mode t))))
+  :ensure t
+  :init
+  (eval-when-compile
+    (declare-function slime-mode "slime.el")
+    (declare-function inferior-slime-mode "slime.el"))
+  :config
+  (setq slime-contribs '(slime-fancy))
+  (setq inferior-lisp-program "/usr/bin/sbcl")
+  (add-hook 'lisp-mode-hook
+	    (lambda () (slime-mode t)))
+  (add-hook 'inferior-lisp-mode-hook
+	    (lambda () (inferior-slime-mode t))))
 
 (use-package counsel
   :ensure t
@@ -712,61 +708,6 @@
 (add-hook 'c-mode-common-hook 'hs-minor-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Package: ycmd (YouCompleteMeDaemon)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Set up YouCompleteMe for emacs:
-;; https://github.com/Valloric/ycmd
-;; https://github.com/abingham/emacs-ycmd
-(defvar my:python-location (executable-find (nth 0 my:ycmd-server-command)))
-(if (not my:python-location)
-    (message
-     "Could not start YouCompleteMeDaemon because the python executable could
-not be found.\nSpecified executable is: '%s'\nPlease set my:ycmd-server-command
-appropriately in ~/.emacs.el.\n" (nth 0 my:ycmd-server-command)))
-(if (not (file-directory-p (nth 1 my:ycmd-server-command)))
-    (message "Could not YouCompleteMeDaemon because the specified directory does
-not exist.\nSpecified directory is: '%s'
-Please set my:ycmd-server-command appropriately in ~/.emacs.el.\n"
-             (nth 1 my:ycmd-server-command)))
-(if (and my:python-location
-         (file-directory-p (nth 1 my:ycmd-server-command)))
-    (use-package ycmd
-      :ensure t
-      :init
-      (eval-when-compile
-        ;; Silence missing function warnings
-        (declare-function global-ycmd-mode "ycmd.el"))
-      (add-hook 'after-init-hook #'global-ycmd-mode)
-      :config
-      (progn
-        (set-variable 'ycmd-server-command my:ycmd-server-command)
-        (set-variable 'ycmd-extra-conf-whitelist my:ycmd-extra-conf-whitelist)
-        (set-variable 'ycmd-global-config my:ycmd-global-config)
-        (setq ycmd-force-semantic-completion t)
-        (use-package company-ycmd
-          :ensure t
-          :init
-          (eval-when-compile
-            ;; Silence missing function warnings
-            (declare-function company-ycmd-setup "company-ycmd.el"))
-          :config
-          (company-ycmd-setup)
-          )
-
-        (use-package flycheck-ycmd
-          :ensure t
-          :init
-          (add-hook 'c-mode-common-hook 'flycheck-ycmd-setup)
-          )
-
-        ;; Add displaying the function arguments in mini buffer using El Doc
-        (require 'ycmd-eldoc)
-        (add-hook 'ycmd-mode-hook 'ycmd-eldoc-setup)
-        )
-      )
-  )
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Set up code completion with company
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package company
@@ -798,7 +739,6 @@ Please set my:ycmd-server-command appropriately in ~/.emacs.el.\n"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Configure flycheck
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Note: For C++ we use flycheck-ycmd
 (use-package flycheck
   :ensure t
   :defer t
@@ -1384,7 +1324,6 @@ Please set my:ycmd-server-command appropriately in ~/.emacs.el.\n"
   (powerline-right-theme)
   )
 
-(provide '.emacs)
 ;;; .emacs ends here
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -1401,3 +1340,4 @@ Please set my:ycmd-server-command appropriately in ~/.emacs.el.\n"
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(which-func ((t (:foreground "#8fb28f")))))
+(provide '.emacs)
