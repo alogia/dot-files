@@ -11,9 +11,11 @@ URxvt.scrollBar_right:	false
 URxvt.scrollBar_floating:	false
 URxvt.scrollstyle:	rxvt
 URxvt.boldFont:
-URxvt.font: xft:xos4 Terminus
+URxvt.font: xft:DejaVu Sans Mono:pixelsize=25
+URxvt.color4:   #00DDFF
 
-Emacs.font:		-*-terminus-*-*-*-*-*-320-*-*-*-*-*-*
+Emacs.FontBackend: xft,x
+Emacs.font:	DejaVu Sans Mono:size=14
 
 *background:		#000000
 *foreground:		#B2B2B2
@@ -22,7 +24,7 @@ URxvt.termName: rxvt-256color
 
 URxvt.iso14755: false
 URxvt.iso14755_52: false
-URxvt.perl-ext-common: default,selection-to-clipboard,pasta,matcher,keyboard-select
+URxvt.perl-ext-common: default,selection-to-clipboard,matcher
 URxvt.keysym.M-u:     perl:url-select:select_next
 URxvt.url-launcher:   /usr/bin/chromium
 URxvt.underlineURLs:  True

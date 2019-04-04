@@ -19,6 +19,14 @@ KEYTIMEOUT=1
 	zle -N up_widget
 	bindkey "^[b" up_widget
 
+# clear
+	function alt_clear(){ 
+		BUFFER="clear"
+		zle accept-line
+	}
+	zle -N alt_clear
+	bindkey "^[c" alt_clear
+
 # home
 	function goto_home() { 
 		BUFFER="cd ~/"$BUFFER

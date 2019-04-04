@@ -189,22 +189,29 @@
     (insert (shell-command-to-string "xsel -o -b"))))
 
 ;; Behave like vi's o command
-(defun open-next-line (arg)
-  (interactive)
+(defun vi-open-next-line (arg)
+  "Move to the next line and then opens a line.
+    See also `newline-and-indent'."
+  (interactive "p")
   (end-of-line)
-  (call-interactively '(open-line arg))
-  (forward-line)
-  (indent-according-to-mode))
-
+  (open-line arg)
+  (next-line 1)
+  (when newline-and-indent
+    (indent-according-to-mode)))
 
 ;; Behave like vi's O command
-(defun open-previous-line (arg)
-  (interactive)
+(defun vi-open-previous-line (arg)
+  "Open a new line before the current one.
+     See also `newline-and-indent'."
+  (interactive "p")
   (beginning-of-line)
-  (call-interactively '(open-line arg))
-  (indent-according-to-mode))
+  (open-line arg)
+  (when newline-and-indent
+    (indent-according-to-mode)))
 
-
+;; Autoindent open-*-lines
+(defvar newline-and-indent t
+  "Modify the behavior of the open-*-line functions to cause them to autoindent.")
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -224,8 +231,8 @@
  ("<f6>"  . linum-mode)
  ("<f7>"  . flyspell-mode)
  ("<f8>"  . flyspell-auto-correct-word)
- ("M-o"   .  open-previous-line)
- ("C-o"   .  open-next-line)
+ ("M-o"   .  vi-open-previous-line)
+ ("C-o"   .  vi-open-next-line)
  ("C-c C-w" . my-cut-to-xclipboard)
  ("C-c M-w" . my-copy-to-xclipboard)
  ("C-c C-y" . my-paste-from-xclipboard)
@@ -641,8 +648,7 @@
 ;; clang-format -style=google -dump-config > .clang-format
 (use-package clang-format
   :ensure t
-  :bind (("C-c C-f" . clang-format-region))
-  )
+  :bind ("C-c C-f" . clang-format-region))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Modern C++ code highlighting
@@ -665,6 +671,9 @@
   :ensure t
   :init
   (add-to-list 'auto-mode-alist '("\\.tpp\\'" . c++-mode))
+  :bind
+  (:map c-mode-base-map
+	("<tab>" . company-complete-common-or-cycle))
   :config
   (define-key c++-mode-map (kbd "C-c C-c") 'compile)
   (define-key c++-mode-map (kbd "C-c C-k") 'kill-compilation)
@@ -679,6 +688,13 @@
     (add-hook 'c-mode-common-hook 'google-make-newline-indent)
     )
   )
+
+(use-package cpputils-cmake
+	     :if (executable-find "cmake")
+	     :ensure t
+	     :config)
+
+
 
 ;; Change tab key behavior to insert spaces instead
 (setq-default indent-tabs-mode nil)
@@ -712,9 +728,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package company
   :ensure t
+  :bind
+  (:map company-active-map
+	("<M-tab>" . company-complete-common-or-cycle))
   :config
-  ;; Zero delay when pressing tab
-  (setq company-idle-delay 0)
+  (require 'company-tng)
+  ;; Turn off autocomplete
+  (setq company-idle-delay 0.5)
+  (setq company-selection-wrap-around t)
+  (company-tng-configure-default)
   (add-hook 'after-init-hook 'global-company-mode)
   ;; remove unused backends
   (setq company-backends (delete 'company-semantic company-backends))
@@ -723,6 +745,22 @@
   (setq company-backends (delete 'company-clang company-backends))
   (setq company-backends (delete 'company-bbdb company-backends))
   (setq company-backends (delete 'company-oddmuse company-backends))
+  (if window-system
+	(custom-set-faces
+	'(company-preview
+	   ((t (:foreground "darkgray" :underline t))))
+	'(company-preview-common
+	   ((t (:inherit company-preview))))
+	'(company-tooltip
+	   ((t (:background "lightgray" :foreground "black"))))
+	'(company-tooltip-selection
+	   ((t (:background "steelblue" :foreground "white"))))
+	'(company-tooltip-common
+	   ((((type x)) (:inherit company-tooltip :weight bold))
+		(t (:inherit company-tooltip))))
+	'(company-tooltip-common-selection
+	   ((((type x)) (:inherit company-tooltip-selection :weight bold))
+		(t (:inherit company-tooltip-selection))))))
   )
 
 ;; Setup loading company-jedi for python completion
@@ -1023,18 +1061,31 @@
   :mode (".json" ".imp"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Setup Dockerfile mode
-;; 1. Download file from GitHub
-;; 2. Load mode
+;; js2-mode and additions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(if (not (file-directory-p "~/.emacs.d/plugins"))
-    (make-directory "~/.emacs.d/plugins"))
-(if (not (file-exists-p "~/.emacs.d/plugins/dockerfile-mode.el"))
-    (url-copy-file
-     "https://raw.githubusercontent.com/spotify/dockerfile-mode/master/dockerfile-mode.el"
-     "~/.emacs.d/plugins/dockerfile-mode.el"))
-(use-package dockerfile-mode
-  :mode ("Dockerfile"))
+
+(use-package js2-mode
+  :ensure t
+  :hook
+  (js2-mode-hook . js2-imenu-extras-mode)
+  :config
+  (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+  (use-package js2-refactor
+    :ensure t
+    :init
+    (declare-function js2r-add-keybindings-with-prefix "js2-refactor.el")
+    :hook
+    (js2-mode-hook . js2-refactor-mode)
+    :bind
+    (:map js2-mode-map
+          ("C-k" . js2r-kill))
+
+    :config
+    (js2r-add-keybindings-with-prefix "C-c C-r"))
+  (use-package xref-js2
+    :ensure t
+    ))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Package: yasnippet
@@ -1077,6 +1128,31 @@
   :mode (".md" ".markdown"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; LSP Mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(use-package lsp-mode
+  :ensure t
+  :commands lsp
+  :hook
+    ((java-mode c-mode c++-mode) . lsp)
+  :config
+  (require 'lsp-clients)
+  (use-package company-lsp
+    :ensure t
+	:commands company-lsp
+    :config
+    (push 'company-lsp company-backends))
+;  (use-package lsp-ui
+;    :ensure t
+;	:commands lsp-ui-mode
+;	:hook
+;    (lsp-mode . lsp-ui-mode)
+;    :config
+;    (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; auctex
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package tex-site
@@ -1113,44 +1189,7 @@
   (setq-default reftex-plug-into-AUCTeX t)
   )
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Appearance
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; The deeper blue theme is loaded but the resulting text
-;; appears black in Aquamacs. This can be fixed by setting
-;; the font color under Menu Bar->Options->Appearance->Font For...
-;; and then setting "Adopt Face and Frame Parameter as Frame Default"
-;(use-package sourcerer-theme
-;  :ensure t
-;  :config
-;  (load-theme 'sourcerer t))
-
 (set-face-background 'hl-line "#372E2D")
-;; The minibuffer default colors with my theme are impossible to read, so change
-;; them to something better using ivy-minibuffer-match-face.
-;(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
-; '(default ((((type tty) (background dark)) (:background "nil"))))
-;'(company-preview ((t (:background "#073642" :foreground "#2aa198"))))
-;'(company-preview-common ((t (:foreground "#93a1a1" :underline t))))
-;'(company-scrollbar-bg ((t (:background "#073642" :foreground "#2aa198"))))
-;'(company-scrollbar-fg ((t (:foreground "#002b36" :background "#839496"))))
-;'(company-template-field ((t (:background "#7B6000" :foreground "#073642"))))
-;'(company-tooltip ((t (:background "black" :foreground "DeepSkyBlue1"))))
-;'(company-tooltip-annotation ((t (:foreground "#93a1a1" :background "#073642"))))
-;'(company-tooltip-common ((t (:foreground "#93a1a1" :underline t))))
-;'(company-tooltip-common-selection ((t (:foreground "#93a1a1" :underline t))))
-;'(company-tooltip-mouse ((t (:background "DodgerBlue4" :foreground "CadetBlue1"))))
-;'(company-tooltip-selection ((t (:background "DodgerBlue4" :foreground "CadetBlue1"))))
-;'(header-line ((t (:background "#003366"))))
-;'(ivy-minibuffer-match-face-1 ((((class color) (background light)) (:background "#555555")) (((class color) (background dark)) (:background "#555555"))))
-;'(ivy-minibuffer-match-face-2 ((t (:background "#314f30" :weight bold))))
-;'(ivy-minibuffer-match-face-3 ((t (:background "#48225b" :weight bold))))
-;'(ivy-minibuffer-match-face-4 ((t (:background "#680a0a" :weight bold))))
-;'(which-func ((t (:foreground "#8fb28f")))))
 
 ;; I don't care to see the splash screen
 (setq inhibit-splash-screen t)
@@ -1333,11 +1372,17 @@
  '(git-gutter:update-interval 5)
  '(package-selected-packages
    (quote
-    (slime-mode zzz-to-char ycm yasnippet-snippets yapfify yaml-mode writegood-mode window-numbering which-key wgrep web-mode vlf use-package string-inflection sourcerer-theme slime-company rtags realgud rainbow-delimiters powerline origami org-link-minor-mode multiple-cursors modern-cpp-font-lock markdown-mode magit-gerrit levenshtein json-mode imenu-anywhere iflipb hungry-delete haskell-tab-indent haskell-snippets haskell-mode google-c-style git-gutter flyspell-correct-ivy flycheck-ycmd flycheck-pyflakes elpy ein edit-server diminish cuda-mode counsel-etags company-ycmd company-jedi cmake-font-lock clang-format beacon autopair auto-package-update auctex ace-jump-buffer 0blayout))))
+    (xref-js2 lsp-ui slime-mode zzz-to-char ycm yasnippet-snippets yapfify yaml-mode writegood-mode window-numbering which-key wgrep web-mode vlf use-package string-inflection sourcerer-theme slime-company rtags realgud rainbow-delimiters powerline origami org-link-minor-mode multiple-cursors modern-cpp-font-lock markdown-mode magit-gerrit levenshtein json-mode imenu-anywhere iflipb hungry-delete haskell-tab-indent haskell-snippets haskell-mode google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy ein edit-server diminish cuda-mode counsel-etags company-jedi cmake-font-lock clang-format beacon autopair auto-package-update auctex ace-jump-buffer 0blayout))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(company-preview ((t (:foreground "darkgray" :underline t))))
+ '(company-preview-common ((t (:inherit company-preview))))
+ '(company-tooltip ((t (:background "lightgray" :foreground "black"))))
+ '(company-tooltip-common ((((type x)) (:inherit company-tooltip :weight bold)) (t (:inherit company-tooltip))))
+ '(company-tooltip-common-selection ((((type x)) (:inherit company-tooltip-selection :weight bold)) (t (:inherit company-tooltip-selection))))
+ '(company-tooltip-selection ((t (:background "steelblue" :foreground "white"))))
  '(which-func ((t (:foreground "#8fb28f")))))
 (provide '.emacs)

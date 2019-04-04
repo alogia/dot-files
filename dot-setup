@@ -54,7 +54,7 @@ case $arg in
 		try_link etc/rtorrent.rc .rtorrent.rc
 		;;
 	ycmd)
-		try_link etc/ycmd_extra_conf.py .ycmd_extra_conf.py
+		try_link etc/ycm_extra_conf.py .ycm_extra_conf.py
 		;;
 	vifm)
 		try_link etc/vifmrc .vifm/vifmrc
