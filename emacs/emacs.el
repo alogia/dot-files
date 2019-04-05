@@ -177,7 +177,7 @@
       (call-interactively 'clipboard-kill-ring-save))
     (message "Yanked region to X-clipboard")
     (when arg
-      (kill-region  (region-beginning) (region-end)))
+t      (kill-region  (region-beginning) (region-end)))
     (deactivate-mark))))
 
 (defun my-cut-to-xclipboard()
@@ -233,13 +233,8 @@
  ("<f6>"  . linum-mode)
  ("<f7>"  . flyspell-mode)
  ("<f8>"  . flyspell-auto-correct-word)
-<<<<<<< HEAD
  ("C-o"   .  vi-open-previous-line)
  ("M-o"   .  vi-open-next-line)
-=======
- ("M-o"   .  vi-open-previous-line)
- ("C-o"   .  vi-open-next-line)
->>>>>>> 43b6dc30ea0568bc5dc684934f312cb809a0e108
  ("C-c C-w" . my-cut-to-xclipboard)
  ("C-c M-w" . my-copy-to-xclipboard)
  ("C-c C-y" . my-paste-from-xclipboard)
@@ -682,14 +677,10 @@
   (add-to-list 'auto-mode-alist '("\\.tpp\\'" . c++-mode))
   :bind
   (:map c-mode-base-map
-<<<<<<< HEAD
-	      ("<tab>" . company-complete-common-or-cycle))
+		("<tab>" . company-complete-common-or-cycle))
   (:map c++-mode-map
         ("C-c C-c" . compile)
         ("C-c C-k" . kill-compilation))
-=======
-	("<tab>" . company-complete-common-or-cycle))
->>>>>>> 43b6dc30ea0568bc5dc684934f312cb809a0e108
   :config
   (setq compile-command my:compile-command)
   (use-package google-c-style
@@ -760,23 +751,6 @@
   (setq company-backends (delete 'company-bbdb company-backends))
   (setq company-backends (delete 'company-oddmuse company-backends))
   (if window-system
-<<<<<<< HEAD
-      (custom-set-faces
-       '(company-preview
-	       ((t (:foreground "darkgray" :underline t))))
-       '(company-preview-common
-	       ((t (:inherit company-preview))))
-       '(company-tooltip
-	       ((t (:background "lightgray" :foreground "black"))))
-       '(company-tooltip-selection
-	       ((t (:background "steelblue" :foreground "white"))))
-       '(company-tooltip-common
-	       ((((type x)) (:inherit company-tooltip :weight bold))
-	        (t (:inherit company-tooltip))))
-       '(company-tooltip-common-selection
-	       ((((type x)) (:inherit company-tooltip-selection :weight bold))
-	        (t (:inherit company-tooltip-selection))))))
-=======
 	(custom-set-faces
 	'(company-preview
 	   ((t (:foreground "darkgray" :underline t))))
@@ -792,7 +766,6 @@
 	'(company-tooltip-common-selection
 	   ((((type x)) (:inherit company-tooltip-selection :weight bold))
 		(t (:inherit company-tooltip-selection))))))
->>>>>>> 43b6dc30ea0568bc5dc684934f312cb809a0e108
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1092,24 +1065,17 @@
 
 (use-package js2-mode
   :ensure t
-<<<<<<< HEAD
   :init
   (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
   :hook
   (js2-mode-hook . js2-imenu-extras-mode)
   :config
-=======
-  :hook
-  (js2-mode-hook . js2-imenu-extras-mode)
-  :config
   (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
->>>>>>> 43b6dc30ea0568bc5dc684934f312cb809a0e108
   (use-package js2-refactor
     :ensure t
     :init
     (declare-function js2r-add-keybindings-with-prefix "js2-refactor.el")
     :hook
-<<<<<<< HEAD
     (js2-mode . js2-refactor-mode)
     :bind
     (:map js2-mode-map
@@ -1124,19 +1090,14 @@
     :init
     :hook
     (js2-mode . (lambda ()
-                  (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))))
-=======
+                  (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
     (js2-mode-hook . js2-refactor-mode)
     :bind
     (:map js2-mode-map
           ("C-k" . js2r-kill))
 
     :config
-    (js2r-add-keybindings-with-prefix "C-c C-r"))
-  (use-package xref-js2
-    :ensure t
-    ))
->>>>>>> 43b6dc30ea0568bc5dc684934f312cb809a0e108
+    (js2r-add-keybindings-with-prefix "C-c C-r")))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1414,21 +1375,6 @@
                                (powerline-render rhs)))))))
   (powerline-right-theme)
   )
-
-;;; .emacs ends here
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(git-gutter:update-interval 5)
- '(package-selected-packages
-   (quote
-<<<<<<< HEAD
-    (paredit indium company-tern xref-js2 lsp-ui slime-mode zzz-to-char ycm yasnippet-snippets yapfify yaml-mode writegood-mode window-numbering which-key wgrep web-mode vlf use-package string-inflection sourcerer-theme slime-company rtags realgud rainbow-delimiters powerline origami org-link-minor-mode multiple-cursors modern-cpp-font-lock markdown-mode magit-gerrit levenshtein json-mode imenu-anywhere iflipb hungry-delete haskell-tab-indent haskell-snippets haskell-mode google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy ein edit-server diminish cuda-mode counsel-etags company-jedi cmake-font-lock clang-format beacon autopair auto-package-update auctex ace-jump-buffer 0blayout))))
-=======
-    (xref-js2 lsp-ui slime-mode zzz-to-char ycm yasnippet-snippets yapfify yaml-mode writegood-mode window-numbering which-key wgrep web-mode vlf use-package string-inflection sourcerer-theme slime-company rtags realgud rainbow-delimiters powerline origami org-link-minor-mode multiple-cursors modern-cpp-font-lock markdown-mode magit-gerrit levenshtein json-mode imenu-anywhere iflipb hungry-delete haskell-tab-indent haskell-snippets haskell-mode google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy ein edit-server diminish cuda-mode counsel-etags company-jedi cmake-font-lock clang-format beacon autopair auto-package-update auctex ace-jump-buffer 0blayout))))
->>>>>>> 43b6dc30ea0568bc5dc684934f312cb809a0e108
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
