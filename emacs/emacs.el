@@ -1,6 +1,5 @@
-;; Specify the jupyter executable name, and the start dir of the server
-(defvar my:jupyter_location (executable-find "jupyter"))
-(defvar my:jupyter_start_dir "/home/phetus")
+;;;; package --- Summary -
+;;;; Init file for alogia
 
 ;; Should emacs use a compiled init file?
 (defvar my:compiled-init nil)
@@ -754,22 +753,24 @@
   (if window-system
       (custom-set-faces
        '(company-preview
-	 ((t (:foreground "darkgray" :underline t))))
+	       ((t (:foreground "darkgray" :underline t))))
        '(company-preview-common
-	 ((t (:inherit company-preview))))
+	       ((t (:inherit company-preview))))
        '(company-tooltip
-	 ((t (:background "lightgray" :foreground "black"))))
+	       ((t (:background "lightgray" :foreground "black"))))
        '(company-tooltip-selection
-	 ((t (:background "steelblue" :foreground "white"))))
+	       ((t (:background "steelblue" :foreground "white"))))
        '(company-tooltip-common
-	 ((((type x)) (:inherit company-tooltip :weight bold))
-	  (t (:inherit company-tooltip))))
+	       ((((type x)) (:inherit company-tooltip :weight bold))
+	        (t (:inherit company-tooltip))))
        '(company-tooltip-common-selection
-	 ((((type x)) (:inherit company-tooltip-selection :weight bold))
-	  (t (:inherit company-tooltip-selection))))))
+	       ((((type x)) (:inherit company-tooltip-selection :weight bold))
+	        (t (:inherit company-tooltip-selection))))))
   )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Company Tern backend
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package company-tern
   :ensure t
   :init
@@ -782,8 +783,9 @@
         ("M-." . nil)
         ("M-," . nil)))
 
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Indium setup
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package indium
   :ensure t)
 
@@ -822,6 +824,16 @@
   :ensure t
   :after python)
 
+(use-package google-translate
+  :ensure t
+  :bind
+  ("C-c C-t" . google-translate-at-point)
+  ("C-c C-T" . google-translate-at-point-reverse)
+  :custom
+  (google-translate-show-phonetic t)
+  (google-translate-default-target-language "en")
+  (google-translate-default-source-language "zh-CN"))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; string-inflection
 ;; used for switching between different cases, eg CamelCase,
@@ -836,19 +848,6 @@
          ("C-c c s" . string-inflection-underscore)
          ("C-c c u" . string-inflection-upcase)
          )
-  )
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; multiple-cursors  - https://github.com/magnars/multiple-cursors.el
-;; Allows you to have multiple cursors on different lines so you can
-;; easily edit multiple lines at once.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package multiple-cursors
-  :ensure t
-  :bind (("M-n" . mc/mark-next-like-this)
-         ("M-p" . mc/mark-previous-like-this)
-         ("C-c a" . mc/mark-all-like-this)
-         ("C-c e" . mc/edit-lines))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -867,12 +866,6 @@
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; vlf - handle open very large files
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package vlf
-  :ensure t)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; web-mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package web-mode
@@ -887,33 +880,6 @@
          ("\\.html?\\'" . web-mode))
   )
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ein - ipython notebooks in gui emacs
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Only launch if the executable exists.
-(if (and my:jupyter_location
-         my:jupyter_start_dir)
-    (use-package ein
-      :ensure t
-      :commands (ein:jupyter-server-start)
-      :defer 5
-      :config
-      (require 'ein)
-      (require 'ein-loaddefs)
-      (require 'ein-notebook)
-      (require 'ein-subpackages)
-      ;; when editing the emacs.el file, we do not want to start a new
-      ;; Jupyter server each time we save, so we only start a new Jupyter
-      ;; server if there currently isn't one running.
-      (defvar my-found-ein-server nil)
-      (dolist (my-current-process (process-list))
-        (when (string-match "EIN: Jupyter*" (process-name my-current-process))
-          (setq my-found-ein-server t))
-        )
-      (when (not my-found-ein-server)
-        (ein:jupyter-server-start my:jupyter_location my:jupyter_start_dir))
-      )
-  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; autopair
@@ -928,6 +894,14 @@
   :config
   (autopair-global-mode t)
   )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; paredit
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package paredit
+  :ensure t
+  :hook
+  ((emacs-lisp-mode lisp-mode lisp-interaction-mode scheme-mode slime-repl-mode) . enable-paredit-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Load hungry Delete, caus we're lazy
@@ -1403,7 +1377,7 @@
  '(git-gutter:update-interval 5)
  '(package-selected-packages
    (quote
-    (indium company-tern xref-js2 lsp-ui slime-mode zzz-to-char ycm yasnippet-snippets yapfify yaml-mode writegood-mode window-numbering which-key wgrep web-mode vlf use-package string-inflection sourcerer-theme slime-company rtags realgud rainbow-delimiters powerline origami org-link-minor-mode multiple-cursors modern-cpp-font-lock markdown-mode magit-gerrit levenshtein json-mode imenu-anywhere iflipb hungry-delete haskell-tab-indent haskell-snippets haskell-mode google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy ein edit-server diminish cuda-mode counsel-etags company-jedi cmake-font-lock clang-format beacon autopair auto-package-update auctex ace-jump-buffer 0blayout))))
+    (paredit indium company-tern xref-js2 lsp-ui slime-mode zzz-to-char ycm yasnippet-snippets yapfify yaml-mode writegood-mode window-numbering which-key wgrep web-mode vlf use-package string-inflection sourcerer-theme slime-company rtags realgud rainbow-delimiters powerline origami org-link-minor-mode multiple-cursors modern-cpp-font-lock markdown-mode magit-gerrit levenshtein json-mode imenu-anywhere iflipb hungry-delete haskell-tab-indent haskell-snippets haskell-mode google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy ein edit-server diminish cuda-mode counsel-etags company-jedi cmake-font-lock clang-format beacon autopair auto-package-update auctex ace-jump-buffer 0blayout))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
