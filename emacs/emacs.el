@@ -2,6 +2,9 @@
 (defvar my:jupyter_location (executable-find "jupyter"))
 (defvar my:jupyter_start_dir "/home/phetus")
 
+;; Should emacs use a compiled init file?
+(defvar my:compiled-init nil)
+
 ;; Compilation command for C/C++
 (defvar my:compile-command "clang++ -Wall -Wextra -std=c++14 ")
 
@@ -231,8 +234,8 @@
  ("<f6>"  . linum-mode)
  ("<f7>"  . flyspell-mode)
  ("<f8>"  . flyspell-auto-correct-word)
- ("M-o"   .  vi-open-previous-line)
- ("C-o"   .  vi-open-next-line)
+ ("C-o"   .  vi-open-previous-line)
+ ("M-o"   .  vi-open-next-line)
  ("C-c C-w" . my-cut-to-xclipboard)
  ("C-c M-w" . my-copy-to-xclipboard)
  ("C-c C-y" . my-paste-from-xclipboard)
@@ -273,6 +276,7 @@
     (byte-compile-file (expand-file-name file)))
   )
 
+(if my:compiled-init
 (add-hook
  'after-save-hook
  (function
@@ -282,13 +286,14 @@
         (byte-compile-init-files (file-truename "~/.emacs.el")))
     )
   )
- )
+ ))
 
 ;; Byte-compile again to ~/.emacs.elc if it is outdated
+(if my:compiled-init
 (if (file-newer-than-file-p
      (file-truename "~/.emacs.el")
      (file-truename "~/.emacs.elc"))
-    (byte-compile-init-files "~/.emacs.el"))
+    (byte-compile-init-files "~/.emacs.el")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; auto-package-update
@@ -673,10 +678,11 @@
   (add-to-list 'auto-mode-alist '("\\.tpp\\'" . c++-mode))
   :bind
   (:map c-mode-base-map
-	("<tab>" . company-complete-common-or-cycle))
+	      ("<tab>" . company-complete-common-or-cycle))
+  (:map c++-mode-map
+        ("C-c C-c" . compile)
+        ("C-c C-k" . kill-compilation))
   :config
-  (define-key c++-mode-map (kbd "C-c C-c") 'compile)
-  (define-key c++-mode-map (kbd "C-c C-k") 'kill-compilation)
   (setq compile-command my:compile-command)
   (use-package google-c-style
     :ensure t
@@ -746,22 +752,41 @@
   (setq company-backends (delete 'company-bbdb company-backends))
   (setq company-backends (delete 'company-oddmuse company-backends))
   (if window-system
-	(custom-set-faces
-	'(company-preview
-	   ((t (:foreground "darkgray" :underline t))))
-	'(company-preview-common
-	   ((t (:inherit company-preview))))
-	'(company-tooltip
-	   ((t (:background "lightgray" :foreground "black"))))
-	'(company-tooltip-selection
-	   ((t (:background "steelblue" :foreground "white"))))
-	'(company-tooltip-common
-	   ((((type x)) (:inherit company-tooltip :weight bold))
-		(t (:inherit company-tooltip))))
-	'(company-tooltip-common-selection
-	   ((((type x)) (:inherit company-tooltip-selection :weight bold))
-		(t (:inherit company-tooltip-selection))))))
+      (custom-set-faces
+       '(company-preview
+	 ((t (:foreground "darkgray" :underline t))))
+       '(company-preview-common
+	 ((t (:inherit company-preview))))
+       '(company-tooltip
+	 ((t (:background "lightgray" :foreground "black"))))
+       '(company-tooltip-selection
+	 ((t (:background "steelblue" :foreground "white"))))
+       '(company-tooltip-common
+	 ((((type x)) (:inherit company-tooltip :weight bold))
+	  (t (:inherit company-tooltip))))
+       '(company-tooltip-common-selection
+	 ((((type x)) (:inherit company-tooltip-selection :weight bold))
+	  (t (:inherit company-tooltip-selection))))))
   )
+
+;;Company Tern backend
+(use-package company-tern
+  :ensure t
+  :init
+  :hook (js2-mode . (lambda ()
+                         (add-to-list 'company-backends 'company-tern)
+                         (tern-mode)))
+  :bind
+  (:map tern-mode-keymap
+        ;; Disable completion keybindings, as we use xref-js2 instead
+        ("M-." . nil)
+        ("M-," . nil)))
+
+
+;;Indium setup
+(use-package indium
+  :ensure t)
+
 
 ;; Setup loading company-jedi for python completion
 ;; This requines running jedi:install-server the first time
@@ -1066,25 +1091,31 @@
 
 (use-package js2-mode
   :ensure t
+  :init
+  (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
   :hook
   (js2-mode-hook . js2-imenu-extras-mode)
   :config
-  (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
   (use-package js2-refactor
     :ensure t
     :init
     (declare-function js2r-add-keybindings-with-prefix "js2-refactor.el")
     :hook
-    (js2-mode-hook . js2-refactor-mode)
+    (js2-mode . js2-refactor-mode)
     :bind
     (:map js2-mode-map
-          ("C-k" . js2r-kill))
+          ("C-k" . js2r-kill)
+          ("M-." . xref-find-definitions))
 
     :config
+    (define-key js-mode-map (kbd "M-.") nil) ; Unbind js-mode key
     (js2r-add-keybindings-with-prefix "C-c C-r"))
   (use-package xref-js2
     :ensure t
-    ))
+    :init
+    :hook
+    (js2-mode . (lambda ()
+                  (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1372,7 +1403,7 @@
  '(git-gutter:update-interval 5)
  '(package-selected-packages
    (quote
-    (xref-js2 lsp-ui slime-mode zzz-to-char ycm yasnippet-snippets yapfify yaml-mode writegood-mode window-numbering which-key wgrep web-mode vlf use-package string-inflection sourcerer-theme slime-company rtags realgud rainbow-delimiters powerline origami org-link-minor-mode multiple-cursors modern-cpp-font-lock markdown-mode magit-gerrit levenshtein json-mode imenu-anywhere iflipb hungry-delete haskell-tab-indent haskell-snippets haskell-mode google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy ein edit-server diminish cuda-mode counsel-etags company-jedi cmake-font-lock clang-format beacon autopair auto-package-update auctex ace-jump-buffer 0blayout))))
+    (indium company-tern xref-js2 lsp-ui slime-mode zzz-to-char ycm yasnippet-snippets yapfify yaml-mode writegood-mode window-numbering which-key wgrep web-mode vlf use-package string-inflection sourcerer-theme slime-company rtags realgud rainbow-delimiters powerline origami org-link-minor-mode multiple-cursors modern-cpp-font-lock markdown-mode magit-gerrit levenshtein json-mode imenu-anywhere iflipb hungry-delete haskell-tab-indent haskell-snippets haskell-mode google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy ein edit-server diminish cuda-mode counsel-etags company-jedi cmake-font-lock clang-format beacon autopair auto-package-update auctex ace-jump-buffer 0blayout))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
