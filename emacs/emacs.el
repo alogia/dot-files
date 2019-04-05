@@ -787,7 +787,8 @@ t      (kill-region  (region-beginning) (region-end)))
 ;;Indium setup
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package indium
-  :ensure t)
+  :ensure t
+)
 
 
 ;; Setup loading company-jedi for python completion
@@ -953,6 +954,7 @@ t      (kill-region  (region-beginning) (region-end)))
   (add-hook 'prog-mode-hook #'flyspell-prog-mode)
   (add-hook 'org-mode-hook #'flyspell-mode)
   )
+
 (use-package flyspell-correct-ivy
   :ensure t
   :after flyspell)
@@ -1065,12 +1067,11 @@ t      (kill-region  (region-beginning) (region-end)))
 
 (use-package js2-mode
   :ensure t
-  :init
-  (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+  :mode
+  (".js")
   :hook
   (js2-mode-hook . js2-imenu-extras-mode)
   :config
-  (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
   (use-package js2-refactor
     :ensure t
     :init
@@ -1081,9 +1082,9 @@ t      (kill-region  (region-beginning) (region-end)))
     (:map js2-mode-map
           ("C-k" . js2r-kill)
           ("M-." . xref-find-definitions))
-
+    (:map js-mode-map
+          ("M-." . nil)) ;; Unbind js-mode key
     :config
-    (define-key js-mode-map (kbd "M-.") nil) ; Unbind js-mode key
     (js2r-add-keybindings-with-prefix "C-c C-r"))
   (use-package xref-js2
     :ensure t
@@ -1094,10 +1095,7 @@ t      (kill-region  (region-beginning) (region-end)))
     (js2-mode-hook . js2-refactor-mode)
     :bind
     (:map js2-mode-map
-          ("C-k" . js2r-kill))
-
-    :config
-    (js2r-add-keybindings-with-prefix "C-c C-r")))
+          ("C-k" . js2r-kill))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
