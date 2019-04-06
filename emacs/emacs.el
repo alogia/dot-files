@@ -1,4 +1,4 @@
-;;;; package --- Summary -
+;;; package --- Summary -
 ;;;; Init file for alogia
 
 ;; Should emacs use a compiled init file?
@@ -102,12 +102,6 @@
 ;; Disable auto-fill-mode in programming mode
 (add-hook 'prog-mode-hook (lambda () (auto-fill-mode -1)))
 
-;; Load the compile ocmmand
-(global-set-key (kbd "C-c C-c") 'compile)
-;; Undo, basically C-x u
-(global-set-key (kbd "C-/") 'undo)
-;; Find file in project
-(global-set-key (kbd "C-x M-f") 'project-find-file)
 
 ;; We don't want to type yes and no all the time so, do y and n
 (defalias 'yes-or-no-p 'y-or-n-p)
@@ -230,6 +224,7 @@ t      (kill-region  (region-beginning) (region-end)))
  ("M-l"   . forward-word)
  ("C-n"   . move-end-of-line)
  ("S-SPC" . set-mark-command)
+ ("C-e"   . mark-sexp)
  ("<f6>"  . linum-mode)
  ("<f7>"  . flyspell-mode)
  ("<f8>"  . flyspell-auto-correct-word)
@@ -237,8 +232,16 @@ t      (kill-region  (region-beginning) (region-end)))
  ("M-o"   .  vi-open-next-line)
  ("C-c C-w" . my-cut-to-xclipboard)
  ("C-c M-w" . my-copy-to-xclipboard)
- ("C-c C-y" . my-paste-from-xclipboard)
-)
+ ("C-c C-y" . my-paste-from-xclipboard))
+
+;; TODO -- Integrate these in bind-keys
+;; Load the compile ocmmand
+(global-set-key (kbd "C-c C-c") 'compile)
+;; Undo, basically C-x u
+(global-set-key (kbd "C-/") 'undo)
+;; Find file in project
+(global-set-key (kbd "C-x M-f") 'project-find-file)
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -275,17 +278,22 @@ t      (kill-region  (region-beginning) (region-end)))
     (byte-compile-file (expand-file-name file)))
   )
 
-(if my:compiled-init
+
 (add-hook
  'after-save-hook
  (function
   (lambda ()
     (if (string= (file-truename "~/.emacs.el")
                  (file-truename (buffer-file-name)))
-        (byte-compile-init-files (file-truename "~/.emacs.el")))
+        (if my:compiled-init
+            (progn (byte-compile-init-files (file-truename "~/.emacs.el"))
+                   (load-file (file-truename "-/.emacs.elc")))
+          (load-file (file-truename "~/.emacs.el")))
+      )
     )
   )
- ))
+ )
+
 
 ;; Byte-compile again to ~/.emacs.elc if it is outdated
 (if my:compiled-init
@@ -336,9 +344,9 @@ t      (kill-region  (region-beginning) (region-end)))
 ;; Tramp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package tramp
-	:ensure t
-	:config
-	(setq tramp-default-method "ssh"))
+  :ensure t
+  :config
+  (setq tramp-default-method "ssh"))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -695,12 +703,12 @@ t      (kill-region  (region-beginning) (region-end)))
   )
 
 (use-package cpputils-cmake
-	     :if (executable-find "cmake")
-	     :ensure t
-	     :config)
+  :if (executable-find "cmake")
+  :ensure t
+  :config)
 
 
-
+;; TODO -- Move these to the top
 ;; Change tab key behavior to insert spaces instead
 (setq-default indent-tabs-mode nil)
 
@@ -854,17 +862,26 @@ t      (kill-region  (region-beginning) (region-end)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Org-Mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq org-log-done 'time
-      org-todo-keywords '((sequence "TODO" "INPROGRESS" "DONE"))
-      org-todo-keyword-faces '(("INPROGRESS" . (:foreground "blue" :weight bold))))
-(use-package writegood-mode
+(use-package org
   :ensure t
-  :init
-  (eval-when-compile
-    ;; Silence missing function warnings
-    (declare-function writegood-mode "writegood-mode.el"))
-  (add-hook 'org-mode-hook #'writegood-mode)
-  )
+  :mode ("\\.org\\" . org-mode)
+  :custom
+  (org-log-done 'time)
+  (org-todo-keywords '((sequence "TODO" "INPROGRESS" "DONE")))
+  (org-todo-keyword-faces '(("INPROGRESS" . (:foreground "blue" :weight bold))))
+  :config
+  (use-package org-bullets
+    :ensure t
+    :hook (org-mode . org-bullets-mode))
+  (use-package writegood-mode
+    :ensure t
+    :init
+    (eval-when-compile
+      ;; Silence missing function warnings
+      (declare-function writegood-mode "writegood-mode.el"))
+    :hook
+    (org-mode . writegood-mode)
+    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; web-mode
@@ -893,8 +910,7 @@ t      (kill-region  (region-beginning) (region-end)))
     ;; Silence missing function warnings
     (declare-function autopair-global-mode "autopair.el"))
   :config
-  (autopair-global-mode t)
-  )
+  (autopair-global-mode t))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; paredit
@@ -902,7 +918,10 @@ t      (kill-region  (region-beginning) (region-end)))
 (use-package paredit
   :ensure t
   :hook
-  ((emacs-lisp-mode lisp-mode lisp-interaction-mode scheme-mode slime-repl-mode) . enable-paredit-mode))
+  ((emacs-lisp-mode lisp-mode lisp-interaction-mode scheme-mode slime-repl-mode)
+   . enable-paredit-mode)
+  )
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Load hungry Delete, caus we're lazy
@@ -1067,10 +1086,10 @@ t      (kill-region  (region-beginning) (region-end)))
 
 (use-package js2-mode
   :ensure t
-  :mode
-  (".js")
+  :mode ("\\.js\\'" . js2-mode)
+  :interpreter ("javascript" . js2-mode)
   :hook
-  (js2-mode-hook . js2-imenu-extras-mode)
+  (js2-mode . js2-imenu-extras-mode)
   :config
   (use-package js2-refactor
     :ensure t
@@ -1151,13 +1170,13 @@ t      (kill-region  (region-beginning) (region-end)))
   (require 'lsp-clients)
   (use-package company-lsp
     :ensure t
-	:commands company-lsp
+    :commands company-lsp
     :config
     (push 'company-lsp company-backends))
 ;  (use-package lsp-ui
 ;    :ensure t
-;	:commands lsp-ui-mode
-;	:hook
+;    :commands lsp-ui-mode
+;    :hook
 ;    (lsp-mode . lsp-ui-mode)
 ;    :config
 ;    (add-hook 'lsp-mode-hook 'lsp-ui-mode))

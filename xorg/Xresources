@@ -15,7 +15,7 @@ URxvt.font: xft:DejaVu Sans Mono:pixelsize=25
 URxvt.color4:   #00DDFF
 
 Emacs.FontBackend: xft,x
-Emacs.font:	DejaVu Sans Mono:size=14
+Emacs.font:	DejaVu Sans Mono:size=12
 
 *background:		#000000
 *foreground:		#B2B2B2
@@ -28,7 +28,7 @@ URxvt.perl-ext-common: default,selection-to-clipboard,matcher
 URxvt.keysym.M-u:     perl:url-select:select_next
 URxvt.url-launcher:   /usr/bin/chromium
 URxvt.underlineURLs:  True
-URxvt.matcher.button: 1 
+URxvt.matcher.button: 1
 URxvt.keysym.M-c:   perl:clipboard:copy
 URxvt.keysym.M-Escape: perl:keyboard-select:activate
 URxvt.keysym.Control-Shift-V:     perl:pasta:paste
