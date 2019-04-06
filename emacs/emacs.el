@@ -1,5 +1,4 @@
-;;; package --- Summary -
-;;;; Init file for alogia
+;;; package --- Summary - Init file for alogia
 
 ;; Should emacs use a compiled init file?
 (defvar my:compiled-init nil)
@@ -66,6 +65,38 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; General Tweaks
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(set-face-background 'hl-line "#372E2D")
+
+;; I don't care to see the splash screen
+(setq inhibit-splash-screen t)
+
+;; Hide the scroll bar
+(scroll-bar-mode -1)
+(defvar my-font-size 90)
+;; Make mode bar small
+(set-face-attribute 'mode-line nil  :height my-font-size)
+;; Set the header bar font
+(set-face-attribute 'header-line nil  :height my-font-size)
+;; Set default window size and position
+(setq default-frame-alist
+      '((top . 0) (left . 0) ;; position
+        (width . 110) (height . 90) ;; size
+        ))
+;; Enable line numbers on the LHS
+(global-linum-mode -1)
+;; Set the font to size 9 (90/10).
+(set-face-attribute 'default nil :height my-font-size)
+
+(setq-default indicate-empty-lines t)
+(when (not indicate-empty-lines)
+  (toggle-indicate-empty-lines))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Enable which function mode and set the header line to display both the
+;; path and the function we're in
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(which-function-mode t)
 
 ;; Change tab key behavior to insert spaces instead
 (setq-default indent-tabs-mode nil)
@@ -674,10 +705,9 @@ t      (kill-region  (region-beginning) (region-end)))
   :init
   (add-to-list 'auto-mode-alist '("\\.tpp\\'" . c++-mode))
   :bind
-  (:map c-mode-base-map
-        ("<tab>" . company-complete-common-or-cycle))
+  ;; (:map c-mode-base-map
+  ;;       ("<tab>" . company-complete-common-or-cycle))
   (:map c++-mode-map
-        ("C-c C-c" . compile)
         ("C-c C-k" . kill-compilation))
   :config
   (setq compile-command my:compile-command)
@@ -726,8 +756,8 @@ t      (kill-region  (region-beginning) (region-end)))
   :ensure t
   :bind
   (:map company-active-map
-	("<M-tab>" . company-complete-common-or-cycle))
- 
+        ("M-t" . (lambda () (interactive) (company-complete-common-or-cycle 1)))
+        ("M-n" . (lambda () (interactive) (company-complete-common-or-cycle -1))))
   :hook
   (after-init . global-company-mode)
   :custom
@@ -741,10 +771,13 @@ t      (kill-region  (region-beginning) (region-end)))
   (setq company-backends (delete 'company-clang company-backends))
   (setq company-backends (delete 'company-bbdb company-backends))
   (setq company-backends (delete 'company-oddmuse company-backends))
-  
-  (use-package company-tng
-    :config
-    (company-tng-configure-default))
+  ;; Setup company to cycle with tab
+  ;; (use-package company-tng
+  ;;   :bind
+  ;;   (:map company-active-map
+	;;         ("<M-tab>" . company-complete-common-or-cycle))
+  ;;   :config
+  ;;   (company-tng-configure-default))
   (if window-system
 	(custom-set-faces
 	'(company-preview
@@ -951,9 +984,9 @@ t      (kill-region  (region-beginning) (region-end)))
   (("<f7>"  . flyspell-mode)
    ("<f8>"  . flyspell-auto-correct-word))
   :hook
-  (text-mode . flyspell-mode)
+  ((text-mode LaTeX-mode org-mode) . flyspell-mode)
   (prog-mode . flyspell-prog-mode)
-  (org-mode . flyspell-mode)
+  ((LaTeX-mode text-mode) . flyspell-buffer)
   )
 
 (use-package flyspell-correct-ivy
@@ -1165,61 +1198,17 @@ t      (kill-region  (region-beginning) (region-end)))
   :config
   (setq-default TeX-auto-save t
                 TeX-parse-self t
-                TeX-source-correlate-start-server t)
-  (cond
-   ((string-equal system-type "windows-nt") ; Microsoft Windows
-    (progn
-      (message "Windows does not have a PDF viewer set for auctex")))
-   ((string-equal system-type "darwin") ; Mac OS X
-    (setq-default
-     TeX-view-program-list
-     '(("Skim"
-        "/Applications/Skim.app/Contents/SharedSupport/displayline -b -g %n %o %b")
-       )
-     TeX-view-program-selection '((output-pdf "Skim"))))
-   ((string-equal system-type "gnu/linux") ; linux
-    (setq-default TeX-view-program-list
-                  '(("Evince" "evince --page-index=%(outpage) %o"))
-                  TeX-view-program-selection '((output-pdf "Evince")))))
-  (add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
-  (add-hook 'LaTeX-mode-hook 'auto-fill-mode)
-  (add-hook 'LaTeX-mode-hook 'flyspell-mode)
-  (add-hook 'LaTeX-mode-hook 'flyspell-buffer)
-  (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
-  (setq-default reftex-plug-into-AUCTeX t)
+                TeX-source-correlate-start-server t
+                Tex-view-program-list '(("Evince" "evince --page-index=%(outpage) %o"))
+                TeX-view-program-selection '(output-pdf "Evince")
+                reftex-plug-into-AUCTeX t)
+  :hook
+  (LaTeX-mode . TeX-source-correlate-mode)
+  (LaTeX-mode . turn-on-reftex)
+  (LaTeX-mode . auto-fill-mode)
   )
+  
 
-(set-face-background 'hl-line "#372E2D")
-
-;; I don't care to see the splash screen
-(setq inhibit-splash-screen t)
-
-;; Hide the scroll bar
-(scroll-bar-mode -1)
-(defvar my-font-size 90)
-;; Make mode bar small
-(set-face-attribute 'mode-line nil  :height my-font-size)
-;; Set the header bar font
-(set-face-attribute 'header-line nil  :height my-font-size)
-;; Set default window size and position
-(setq default-frame-alist
-      '((top . 0) (left . 0) ;; position
-        (width . 110) (height . 90) ;; size
-        ))
-;; Enable line numbers on the LHS
-(global-linum-mode -1)
-;; Set the font to size 9 (90/10).
-(set-face-attribute 'default nil :height my-font-size)
-
-(setq-default indicate-empty-lines t)
-(when (not indicate-empty-lines)
-  (toggle-indicate-empty-lines))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Enable which function mode and set the header line to display both the
-;; path and the function we're in
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(which-function-mode t)
 
 ;; Remove function from mode bar
 (setq mode-line-misc-info
