@@ -359,6 +359,7 @@ t      (kill-region  (region-beginning) (region-end)))
     (declare-function slime-mode "slime.el")
     (declare-function inferior-slime-mode "slime.el"))
   :config
+  ;; TODO -- Fix these calls to comform to use-package syntax
   (setq slime-contribs '(slime-fancy))
   (setq inferior-lisp-program "/usr/bin/sbcl")
   (add-hook 'lisp-mode-hook
@@ -633,6 +634,7 @@ t      (kill-region  (region-beginning) (region-end)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Python mode settings
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; TODO -- FIX this syntax
 (setq-default python-indent 4)
 (setq-default python-indent-offset 4)
 (add-hook 'python-mode-hook
@@ -864,7 +866,7 @@ t      (kill-region  (region-beginning) (region-end)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package org
   :ensure t
-  :mode ("\\.org\\" . org-mode)
+  :mode ("\\.org\\'" . org-mode)
   :custom
   (org-log-done 'time)
   (org-todo-keywords '((sequence "TODO" "INPROGRESS" "DONE")))
@@ -1397,6 +1399,7 @@ t      (kill-region  (region-beginning) (region-end)))
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(default ((t (:family "Noto Mono for Powerline" :foundry "GOOG" :slant normal :weight normal :height 85 :width normal))))
  '(company-preview ((t (:foreground "darkgray" :underline t))))
  '(company-preview-common ((t (:inherit company-preview))))
  '(company-tooltip ((t (:background "lightgray" :foreground "black"))))
@@ -1404,4 +1407,5 @@ t      (kill-region  (region-beginning) (region-end)))
  '(company-tooltip-common-selection ((((type x)) (:inherit company-tooltip-selection :weight bold)) (t (:inherit company-tooltip-selection))))
  '(company-tooltip-selection ((t (:background "steelblue" :foreground "white"))))
  '(which-func ((t (:foreground "#8fb28f")))))
+
 (provide '.emacs)
