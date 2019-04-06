@@ -6,7 +6,7 @@
 
 ;; Compilation command for C/C++
 (defvar my:compile-command "clang++ -Wall -Wextra -std=c++14 ")
-
+(global-set-key (kbd "C-c C-c") 'compile)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Set packages to install
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -66,6 +66,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; General Tweaks
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Change tab key behavior to insert spaces instead
+(setq-default indent-tabs-mode nil)
+;; Set the number of spaces that the tab key inserts (usually 2 or 4)
+(setq c-basic-offset 2)
+;; Set the size that a tab CHARACTER is interpreted as
+;; (unnecessary if there are no tab characters in the file!)
+(setq tab-width 2)
 ;; turn on highlight matching brackets when cursor is on one
 (show-paren-mode t)
 ;; Overwrite region selected
@@ -88,12 +96,7 @@
 (if (functionp 'tool-bar-mode) (tool-bar-mode -1))
 
 ;; Remove trailing white space upon saving
-;; Note: because of a bug in EIN we only delete trailing whitespace
-;; when not in EIN mode.
-(add-hook 'before-save-hook
-          (lambda ()
-            (when (not (derived-mode-p 'ein:notebook-multilang-mode))
-              (delete-trailing-whitespace))))
+(add-hook 'before-save-hook #'(delete-trailing-whitespace))
 
 ;; Auto-wrap at 80 characters
 (setq-default auto-fill-function 'do-auto-fill)
@@ -120,8 +123,8 @@
 ;; wide as that tab on the display.
 (setq x-stretch-cursor t)
 
-;; Dont ask to follow symlink in git
-;;(setq vc-follow-symlinks t)
+;; Don't ask to follow symlink in git
+(setq vc-follow-symlinks t)
 
 ;; Check (on save) whether the file edited contains a shebang, if yes,
 ;; make it executable from
@@ -226,22 +229,13 @@ t      (kill-region  (region-beginning) (region-end)))
  ("S-SPC" . set-mark-command)
  ("C-e"   . mark-sexp)
  ("<f6>"  . linum-mode)
- ("<f7>"  . flyspell-mode)
- ("<f8>"  . flyspell-auto-correct-word)
  ("C-o"   .  vi-open-previous-line)
  ("M-o"   .  vi-open-next-line)
  ("C-c C-w" . my-cut-to-xclipboard)
  ("C-c M-w" . my-copy-to-xclipboard)
- ("C-c C-y" . my-paste-from-xclipboard))
-
-;; TODO -- Integrate these in bind-keys
-;; Load the compile ocmmand
-(global-set-key (kbd "C-c C-c") 'compile)
-;; Undo, basically C-x u
-(global-set-key (kbd "C-/") 'undo)
-;; Find file in project
-(global-set-key (kbd "C-x M-f") 'project-find-file)
-
+ ("C-c C-y" . my-paste-from-xclipboard)
+ ("C-/"     . undo)
+ ("C-x M-f" . project-find-file))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -354,18 +348,12 @@ t      (kill-region  (region-beginning) (region-end)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package slime
   :ensure t
-  :init
-  (eval-when-compile
-    (declare-function slime-mode "slime.el")
-    (declare-function inferior-slime-mode "slime.el"))
-  :config
-  ;; TODO -- Fix these calls to comform to use-package syntax
-  (setq slime-contribs '(slime-fancy))
-  (setq inferior-lisp-program "/usr/bin/sbcl")
-  (add-hook 'lisp-mode-hook
-	    (lambda () (slime-mode t)))
-  (add-hook 'inferior-lisp-mode-hook
-	    (lambda () (inferior-slime-mode t))))
+  :custom
+  (slime-contribs '(slime-fancy))
+  (inferior-lisp-program "/usr/bin/sbcl")
+  :hook
+  (lisp-mode . slime-mode)
+  (inferior-lisp-mode . inferior-slime-mode))
 
 (use-package counsel
   :ensure t
@@ -628,8 +616,8 @@ t      (kill-region  (region-beginning) (region-end)))
   :ensure t
   :init
   (setenv "TERM" "dumb")
-  :config
-  (setq realgud:pdb-command-name "python -m pdb"))
+  :custom
+  (realgud:pdb-command-name "python -m pdb"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Python mode settings
@@ -651,8 +639,8 @@ t      (kill-region  (region-beginning) (region-end)))
 
 (use-package yapfify
   :ensure t
-  :init
-  (add-hook 'python-mode-hook 'yapf-mode))
+  :hook
+  (python-mode . yapf-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Clang-format
@@ -687,7 +675,7 @@ t      (kill-region  (region-beginning) (region-end)))
   (add-to-list 'auto-mode-alist '("\\.tpp\\'" . c++-mode))
   :bind
   (:map c-mode-base-map
-		("<tab>" . company-complete-common-or-cycle))
+        ("<tab>" . company-complete-common-or-cycle))
   (:map c++-mode-map
         ("C-c C-c" . compile)
         ("C-c C-k" . kill-compilation))
@@ -695,30 +683,22 @@ t      (kill-region  (region-beginning) (region-end)))
   (setq compile-command my:compile-command)
   (use-package google-c-style
     :ensure t
-    :config
+    :hook
     ;; This prevents the extra two spaces in a namespace that Emacs
     ;; otherwise wants to put... Gawd!
-    (add-hook 'c-mode-common-hook 'google-set-c-style)
+    (c-mode-common . google-set-c-style)
     ;; Autoindent using google style guide
-    (add-hook 'c-mode-common-hook 'google-make-newline-indent)
+    (c-mode-common . google-make-newline-indent)
     )
   )
 
 (use-package cpputils-cmake
   :if (executable-find "cmake")
   :ensure t
-  :config)
+  :config
+  ;; TODO -- Configure this further
+  )
 
-
-;; TODO -- Move these to the top
-;; Change tab key behavior to insert spaces instead
-(setq-default indent-tabs-mode nil)
-
-;; Set the number of spaces that the tab key inserts (usually 2 or 4)
-(setq c-basic-offset 2)
-;; Set the size that a tab CHARACTER is interpreted as
-;; (unnecessary if there are no tab characters in the file!)
-(setq tab-width 2)
 
 ;; We want to be able to see if there is a tab character vs a space.
 ;; global-whitespace-mode allows us to do just that.
@@ -729,8 +709,9 @@ t      (kill-region  (region-beginning) (region-end)))
   (eval-when-compile
       ;; Silence missing function warnings
       (declare-function global-whitespace-mode "whitespace.el"))
+  :custom
+  (whitespace-style '(tabs tab-mark))
   :config
-  (setq whitespace-style '(tabs tab-mark))
   ;; Turn on whitespace mode globally.
   (global-whitespace-mode t)
   )
@@ -746,13 +727,13 @@ t      (kill-region  (region-beginning) (region-end)))
   :bind
   (:map company-active-map
 	("<M-tab>" . company-complete-common-or-cycle))
+ 
+  :hook
+  (after-init . global-company-mode)
+  :custom
+  (company-idle-delay 0.25)
+  (company-selection-wrap-around t)
   :config
-  (require 'company-tng)
-  ;; Turn off autocomplete
-  (setq company-idle-delay 0.5)
-  (setq company-selection-wrap-around t)
-  (company-tng-configure-default)
-  (add-hook 'after-init-hook 'global-company-mode)
   ;; remove unused backends
   (setq company-backends (delete 'company-semantic company-backends))
   (setq company-backends (delete 'company-eclim company-backends))
@@ -760,6 +741,10 @@ t      (kill-region  (region-beginning) (region-end)))
   (setq company-backends (delete 'company-clang company-backends))
   (setq company-backends (delete 'company-bbdb company-backends))
   (setq company-backends (delete 'company-oddmuse company-backends))
+  
+  (use-package company-tng
+    :config
+    (company-tng-configure-default))
   (if window-system
 	(custom-set-faces
 	'(company-preview
@@ -783,10 +768,11 @@ t      (kill-region  (region-beginning) (region-end)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package company-tern
   :ensure t
-  :init
-  :hook (js2-mode . (lambda ()
-                         (add-to-list 'company-backends 'company-tern)
-                         (tern-mode)))
+  :hook
+  (js2-mode .
+            (lambda ()
+              (add-to-list 'company-backends 'company-tern)
+              (tern-mode)))
   :bind
   (:map tern-mode-keymap
         ;; Disable completion keybindings, as we use xref-js2 instead
@@ -857,8 +843,7 @@ t      (kill-region  (region-beginning) (region-end)))
          ("C-c c l" . string-inflection-lower-camelcase)
          ("C-c c c" . string-inflection-camelcase)
          ("C-c c s" . string-inflection-underscore)
-         ("C-c c u" . string-inflection-upcase)
-         )
+         ("C-c c u" . string-inflection-upcase))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -877,10 +862,6 @@ t      (kill-region  (region-beginning) (region-end)))
     :hook (org-mode . org-bullets-mode))
   (use-package writegood-mode
     :ensure t
-    :init
-    (eval-when-compile
-      ;; Silence missing function warnings
-      (declare-function writegood-mode "writegood-mode.el"))
     :hook
     (org-mode . writegood-mode)
     ))
@@ -966,14 +947,13 @@ t      (kill-region  (region-beginning) (region-end)))
     (interactive)
     (flyspell-goto-next-error)
     (ispell-word))
-
-  (global-set-key (kbd "<f7>") 'flyspell-buffer)
-  (global-set-key (kbd "<f8>") 'flyspell-correct-previous)
-  (global-set-key (kbd "<f9>") 'flyspell-correct-previous)
-
-  (add-hook 'text-mode-hook #'flyspell-mode)
-  (add-hook 'prog-mode-hook #'flyspell-prog-mode)
-  (add-hook 'org-mode-hook #'flyspell-mode)
+  :bind
+  (("<f7>"  . flyspell-mode)
+   ("<f8>"  . flyspell-auto-correct-word))
+  :hook
+  (text-mode . flyspell-mode)
+  (prog-mode . flyspell-prog-mode)
+  (org-mode . flyspell-mode)
   )
 
 (use-package flyspell-correct-ivy
@@ -1042,18 +1022,6 @@ t      (kill-region  (region-beginning) (region-end)))
     )
   )
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Bazel-mode
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;(if (not (file-exists-p "~/.emacs.d/plugins/bazel-mode.el"))
-;    (url-copy-file
-;     "https://raw.githubusercontent.com/codesuki/bazel-mode/master/bazel-mode.el"
-;     "~/.emacs.d/plugins/bazel-mode.el"))
-;(if (file-exists-p "~/.emacs.d/plugins/bazel-mode.el")
-;    (use-package bazel-mode
-;      :mode ("BUILD" "\\.bazel\\'" "\\.bzl'" "WORKSPACE\\'")
-;      )
-;  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; protobuf-mode
