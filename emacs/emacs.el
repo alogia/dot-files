@@ -1,5 +1,8 @@
 ;;; package --- Summary - Init file for alogia
 
+;; Extra plugins and config files are stored here
+(defvar my:plugin-dir (expand-file-name "~/.emacs.d/plugins"))
+
 ;; Should emacs use a compiled init file?
 (defvar my:compiled-init nil)
 
@@ -48,12 +51,14 @@
 ;; startup really slow. Since most systems have at least 64MB of memory,
 ;; we increase it during initialization.
 (setq gc-cons-threshold 64000000)
-(add-hook 'after-init-hook #'(lambda ()
-                               ;; restore after startup
-                               (setq gc-cons-threshold 800000)))
+;; (add-hook 'after-init-hook #'(lambda ()
+;;                                ;; restore after startup
+;;                                (setq gc-cons-threshold 800000)))
 
-;; Extra plugins and config files are stored here
-(add-to-list 'load-path (expand-file-name "~/.emacs.d/plugins"))
+
+;; Create the plugin directory and add it to load path if it doesn't already exist.
+(make-directory my:plugin-dir :parents)
+(add-to-list 'load-path my:plugin-dir)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Start emacs server if not already running
@@ -67,37 +72,22 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (set-face-background 'hl-line "#372E2D")
-
-;; I don't care to see the splash screen
 (setq inhibit-splash-screen t)
-
-;; Hide the scroll bar
 (scroll-bar-mode -1)
-(defvar my-font-size 90)
+
+(defvar my-font-size 85)
 ;; Make mode bar small
 (set-face-attribute 'mode-line nil  :height my-font-size)
 ;; Set the header bar font
 (set-face-attribute 'header-line nil  :height my-font-size)
-;; Set default window size and position
-(setq default-frame-alist
-      '((top . 0) (left . 0) ;; position
-        (width . 110) (height . 90) ;; size
-        ))
-;; Enable line numbers on the LHS
+;; Turn off line numbers by default
 (global-linum-mode -1)
-;; Set the font to size 9 (90/10).
-(set-face-attribute 'default nil :height my-font-size)
-
+;; Show empty lines at end of file
 (setq-default indicate-empty-lines t)
 (when (not indicate-empty-lines)
   (toggle-indicate-empty-lines))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Enable which function mode and set the header line to display both the
-;; path and the function we're in
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Show function in menu bar
 (which-function-mode t)
-
 ;; Change tab key behavior to insert spaces instead
 (setq-default indent-tabs-mode nil)
 ;; Set the number of spaces that the tab key inserts (usually 2 or 4)
@@ -114,7 +104,11 @@
 ;; Use CUA to delete selections
 (setq cua-mode t)
 (setq cua-enable-cua-keys nil)
-;; Prevent emacs from creating a bckup file filename~
+;; Don't ring the bell
+(setq ring-bell-function 'ignore)
+;; Disable the horrid auto-save
+(setq auto-save-default nil)
+;; Prevent emacs from creating a backup file filename~
 (setq make-backup-files nil)
 ;; Set backup dir in case we want to enable it
 (setq backup-directory-alist `(("." . "~/.saves")))
@@ -125,41 +119,32 @@
 (global-hl-line-mode t)
 ;; Disable the toolbar at the top since it's useless
 (if (functionp 'tool-bar-mode) (tool-bar-mode -1))
+;; Disable the menu bar since we don't use it, especially not in the terminal
+(menu-bar-mode -1)
+;; Auto-wrap at 80 characters
+(setq-default auto-fill-function 'do-auto-fill)
+(setq-default fill-column 80)
+;; Non-nil means draw block cursor as wide as the glyph under it.
+(setq x-stretch-cursor t)
+;; Don't ask to follow symlink in git
+(setq vc-follow-symlinks t)
+;; We don't want to type yes and no all the time so, do y and n
+(defalias 'yes-or-no-p 'y-or-n-p)
+(turn-on-auto-fill)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;    Some default hooks
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Remove trailing white space upon saving
 (add-hook 'before-save-hook #'(delete-trailing-whitespace))
 
-;; Auto-wrap at 80 characters
-(setq-default auto-fill-function 'do-auto-fill)
-(setq-default fill-column 80)
-(turn-on-auto-fill)
 ;; Disable auto-fill-mode in programming mode
 (add-hook 'prog-mode-hook (lambda () (auto-fill-mode -1)))
 
-
-;; We don't want to type yes and no all the time so, do y and n
-(defalias 'yes-or-no-p 'y-or-n-p)
-;; Disable the horrid auto-save
-(setq auto-save-default nil)
-
-;; Disable the menu bar since we don't use it, especially not in the
-;; terminal
-(menu-bar-mode -1)
-
-;; Don't ring the bell
-(setq ring-bell-function 'ignore)
-
-;; Non-nil means draw block cursor as wide as the glyph under it.
-;; For example, if a block cursor is over a tab, it will be drawn as
-;; wide as that tab on the display.
-(setq x-stretch-cursor t)
-
-;; Don't ask to follow symlink in git
-(setq vc-follow-symlinks t)
-
-;; Check (on save) whether the file edited contains a shebang, if yes,
-;; make it executable from
-;; http://mbork.pl/2015-01-10_A_few_random_Emacs_tips
+;; Check (on save) whether the file edited contains a shebang, if yes, make it
+;; executable.
 (add-hook 'after-save-hook #'executable-make-buffer-file-executable-if-script-p)
 
 ;; Highlight some keywords in prog-mode
@@ -175,48 +160,9 @@
             )
           )
 
-;; Setup use-package
-(eval-when-compile
-  (require 'use-package))
-(use-package bind-key
-  :ensure t)
-
-
-;; so we can (require 'use-package) even in compiled emacs to e.g. read docs
-(use-package use-package
-  :commands use-package-autoload-keymap)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Enable terminal emacs to copy and paste from system clipboard
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Note: this uses C-c before the usual C-w, M-w, and C-y
-;; From: https://stackoverflow.com/questions/64360/how-to-copy-text-from-emacs-to-another-application-on-linux
-(defun my-copy-to-xclipboard(arg)
-  (interactive "P")
-  (cond
-   ((not (use-region-p))
-    (message "Nothing to yank to X-clipboard"))
-   ((and (not (display-graphic-p))
-         (/= 0 (shell-command-on-region
-                (region-beginning) (region-end) "xsel -i -b")))
-    (message "Error: Is program `xsel' installed?"))
-   (t
-    (when (display-graphic-p)
-      (call-interactively 'clipboard-kill-ring-save))
-    (message "Yanked region to X-clipboard")
-    (when arg
-t      (kill-region  (region-beginning) (region-end)))
-    (deactivate-mark))))
-
-(defun my-cut-to-xclipboard()
-  (interactive)
-  (my-copy-to-xclipboard t))
-
-(defun my-paste-from-xclipboard()
-  (interactive)
-  (if (display-graphic-p)
-      (clipboard-yank)
-    (insert (shell-command-to-string "xsel -o -b"))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;     General Functions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Behave like vi's o command
 (defun vi-open-next-line (arg)
@@ -243,44 +189,6 @@ t      (kill-region  (region-beginning) (region-end)))
 (defvar newline-and-indent t
   "Modify the behavior of the open-*-line functions to cause them to autoindent.")
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Global Key Bindings regardless of any mode
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(bind-keys*
- ("C-t"   . forward-paragraph)
- ("C-S-t" . backward-paragraph)
- ("M-t"   . next-line)
- ("M-n"   . previous-line)
- ("M-s"   . forward-char)
- ("M-h"   . backward-char)
- ("M-b"   . backward-word)
- ("M-l"   . forward-word)
- ("C-n"   . move-end-of-line)
- ("S-SPC" . set-mark-command)
- ("C-e"   . mark-sexp)
- ("<f6>"  . linum-mode)
- ("C-o"   .  vi-open-previous-line)
- ("M-o"   .  vi-open-next-line)
- ("C-c C-w" . my-cut-to-xclipboard)
- ("C-c M-w" . my-copy-to-xclipboard)
- ("C-c C-y" . my-paste-from-xclipboard)
- ("C-/"     . undo)
- ("C-x M-f" . project-find-file))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; async - library for async/thread processing
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package async
-  :ensure t)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; s is used by origami, etc and sometimes during Emacs
-;; upgrades disappears so we try to install it on its own.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package s
-  :ensure t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Automatically compile and save ~/.emacs.el
@@ -322,14 +230,22 @@ t      (kill-region  (region-beginning) (region-end)))
 
 ;; Byte-compile again to ~/.emacs.elc if it is outdated
 (if my:compiled-init
-(if (file-newer-than-file-p
-     (file-truename "~/.emacs.el")
-     (file-truename "~/.emacs.elc"))
-    (byte-compile-init-files "~/.emacs.el")))
+    (if (file-newer-than-file-p
+         (file-truename "~/.emacs.el")
+         (file-truename "~/.emacs.elc"))
+        (byte-compile-init-files "~/.emacs.el")))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; auto-package-update
+;; Setup use-package
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(eval-when-compile
+  (require 'use-package))
+(use-package bind-key
+  :ensure t)
+;; so we can (require 'use-package) even in compiled emacs to e.g. read docs
+(use-package use-package
+  :commands use-package-autoload-keymap)
 ;; Auto update packages once a week
 (use-package auto-package-update
   :ensure t
@@ -341,6 +257,51 @@ t      (kill-region  (region-beginning) (region-end)))
   (add-hook 'auto-package-update-before-hook
           (lambda () (message "I will update packages now")))
   )
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Global Key Bindings regardless of any mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(bind-keys*
+ ("C-t"   . forward-paragraph)
+ ("C-S-t" . backward-paragraph)
+ ("M-t"   . next-line)
+ ("M-n"   . previous-line)
+ ("M-s"   . forward-char)
+ ("M-h"   . backward-char)
+ ("M-b"   . backward-word)
+ ("M-l"   . forward-word)
+ ("C-n"   . move-end-of-line)
+ ("S-SPC" . set-mark-command)
+ ("C-e"   . mark-sexp)
+ ("<f6>"  . linum-mode)
+ ("C-o"   .  vi-open-previous-line)
+ ("M-o"   .  vi-open-next-line)
+ ("C-c C-w" . my-cut-to-xclipboard)
+ ("C-c M-w" . my-copy-to-xclipboard)
+ ("C-c C-y" . my-paste-from-xclipboard)
+ ("C-/"     . undo)
+ ("C-x M-f" . project-find-file))
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; async - library for async/thread processing
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package async
+  :ensure t)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; s is used by origami, etc and sometimes during Emacs
+;; upgrades disappears so we try to install it on its own.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package s
+  :ensure t)
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Ivy config
