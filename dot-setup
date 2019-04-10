@@ -27,6 +27,7 @@ case $arg in
 	zsh)
 		try_link zsh/zshrc.sh .zshrc
 		try_link zsh/keybindings.sh .keybindings
+		try_link zsh/zsh_exports.sh .zsh_exports
 		;;
 	emacs)
 		try_link emacs/emacs.el .emacs.el

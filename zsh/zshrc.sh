@@ -21,8 +21,7 @@ antigen apply
 ############################################
 #				EXPORTS
 ############################################
-export GEM_HOME="$HOME/gems"
-export PATH="$PATH:$HOME/bin:$(ruby -e 'print Gem.user_dir')/bin"
+source $HOME/.zsh_exports 
 
 ############################################
 #			  KEY BINDINGS   

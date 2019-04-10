@@ -1,14 +1,53 @@
 ;;; package --- Summary - Init file for alogia
 
 ;; Extra plugins and config files are stored here
-(defvar my:plugin-dir (expand-file-name "~/.emacs.d/plugins"))
-
+(defvar my:plugin-dir  "~/.emacs.d/plugins")
 ;; Should emacs use a compiled init file?
 (defvar my:compiled-init nil)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Org Mode setup
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Default directory for Org files
+(defvar my:org-dir "~/org/")
+;; Default file for Org mode to open with if started with C-c o
+(defvar my:org-default-file "master.org")
+;; Default file for org captures
+(defvar my:org-default-notes "notes.org")
+;; Defines targets files for refiling
+(defvar my:org-refile-targets
+     '(("notes.org"    .  (:maxlevel . 8)) ;; Default landing place for captures
+       ("tasks.org"    .  (:maxlevel . 7)) ;; The TODO list
+       ("projects.org" .  (:maxlevel . 3)) ;; Programming projects stuff
+       ("ideas.org"    .  (:maxlevel . 5)) ;; Ideas for articles and such
+       ("books.org"    .  (:maxlevel . 9)) ;; Notes on books
+       ("master.org"   .  (:maxlevel . 9)) ;; A places for all the rest
+       ("bookmarks.org" . (:maxlevel . 3)) ;; Bookmarks from web
+       ))
+;;Defines capture templates
+(setq org-capture-templates
+      `(
+        ;; TODO --FIX ALL THESE TEMPLATES
+        ("n" "Notes" entry (file ,(concat my:org-dir "notes.org"))
+         "* %?%^G\n  :PROPERTIES:\n  :ENTERED_ON: %T\n  :END:\n%i\n")
+        ("i" "Ideas" entry (file ,(concat my:org-dir "ideas.org"))
+         "* %?%^G\n  :PROPERTIES:\n  :ENTERED_ON: %T\n  :END:\n%i\n" :empty-lines 1)
+        ("t" "Todo" entry (file ,(concat my:org-dir "tasks.org"))
+         "* %?%^G\n  :PROPERTIES:\n  :ENTERED_ON: %T\n  :END:\n%i\n")
+        ("p" "Projects" entry (file ,(concat my:org-dir "projects.org"))
+         "* %?%^G\n  :PROPERTIES:\n  :ENTERED_ON: %T\n  :END:\n%i\n")
+        ("b" "Bookmarks" entry (file ,(concat my:org-dir "bookmarks.org"))
+         "* [[%:link][%:description]]\n TAGS::%?%^G\n %i" :empty-lines 1)
+        ))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Compiler setups
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Compilation command for C/C++
 (defvar my:compile-command "clang++ -Wall -Wextra -std=c++14 ")
 (global-set-key (kbd "C-c C-c") 'compile)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Set packages to install
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -57,8 +96,8 @@
 
 
 ;; Create the plugin directory and add it to load path if it doesn't already exist.
-(make-directory my:plugin-dir :parents)
-(add-to-list 'load-path my:plugin-dir)
+(make-directory (expand-file-name my:plugin-dir) :parents)
+(add-to-list 'load-path (expand-file-name my:plugin-dir))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Start emacs server if not already running
@@ -71,7 +110,6 @@
 ;; General Tweaks
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(set-face-background 'hl-line "#372E2D")
 (setq inhibit-splash-screen t)
 (scroll-bar-mode -1)
 
@@ -117,6 +155,7 @@
               search-highlight t) ;hilit matches when searching
 ;; Highlight the line we are currently on
 (global-hl-line-mode t)
+(set-face-background 'hl-line "#372E2D")
 ;; Disable the toolbar at the top since it's useless
 (if (functionp 'tool-bar-mode) (tool-bar-mode -1))
 ;; Disable the menu bar since we don't use it, especially not in the terminal
@@ -164,10 +203,16 @@
 ;;     General Functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun org-open-main ()
+    "Opens the default org file from any buffer."
+    (interactive)
+    (find-file (concat
+                (expand-file-name my:org-dir)
+                my:org-default-file)))
+
 ;; Behave like vi's o command
 (defun vi-open-next-line (arg)
-  "Move to the next line and then opens a line.
-    See also `newline-and-indent'."
+  "Move to the next line and then open ARG new lines.  See also `newline-and-indent'."
   (interactive "p")
   (end-of-line)
   (open-line arg)
@@ -177,8 +222,7 @@
 
 ;; Behave like vi's O command
 (defun vi-open-previous-line (arg)
-  "Open a new line before the current one.
-     See also `newline-and-indent'."
+  "Open ARG new lines before the current one.  See also `newline-and-indent'."
   (interactive "p")
   (beginning-of-line)
   (open-line arg)
@@ -262,6 +306,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Global Key Bindings regardless of any mode
+;; ONLY USE FOR BINDINGS WHICH SHOULD NEVER BE OVERRIDDEN BY ANY MODE
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (bind-keys*
  ("C-t"   . forward-paragraph)
@@ -278,15 +323,18 @@
  ("<f6>"  . linum-mode)
  ("C-o"   .  vi-open-previous-line)
  ("M-o"   .  vi-open-next-line)
- ("C-c C-w" . my-cut-to-xclipboard)
- ("C-c M-w" . my-copy-to-xclipboard)
- ("C-c C-y" . my-paste-from-xclipboard)
+ ("C-c l" . org-store-link)
+ ("C-c a" . org-agenda)
+ ("C-c c" . org-capture)
+ ("C-c o" . org-open-main)
  ("C-/"     . undo)
  ("C-x M-f" . project-find-file))
 
-
-
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                    GENERAL PACKAGES                              ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; async - library for async/thread processing
@@ -297,11 +345,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; s is used by origami, etc and sometimes during Emacs
 ;; upgrades disappears so we try to install it on its own.
+;; s is an emacs general string manipulation library.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package s
   :ensure t)
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Ivy config
@@ -341,11 +388,19 @@
 (use-package slime
   :ensure t
   :custom
-  (slime-contribs '(slime-fancy))
   (inferior-lisp-program "/usr/bin/sbcl")
   :hook
   (lisp-mode . slime-mode)
-  (inferior-lisp-mode . inferior-slime-mode))
+  (inferior-lisp-mode . inferior-slime-mode)
+  :config
+  (use-package slime-company
+    :ensure t
+    :custom
+    (slime-contribs '(slime-fancy slime-company))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Setup Counsel mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (use-package counsel
   :ensure t
@@ -377,9 +432,14 @@
     )
   )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Setup Counsel-etags support with ctags
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Use universal ctags to build the tags database for the project.
 ;; When you first want to build a TAGS database run 'touch TAGS'
 ;; in the root directory of your project.
+
+;; TODO --- Clean up this use-package call
 (use-package counsel-etags
   :ensure t
   :init
@@ -666,8 +726,6 @@
   :init
   (add-to-list 'auto-mode-alist '("\\.tpp\\'" . c++-mode))
   :bind
-  ;; (:map c-mode-base-map
-  ;;       ("<tab>" . company-complete-common-or-cycle))
   (:map c++-mode-map
         ("C-c C-k" . kill-compilation))
   :config
@@ -718,7 +776,8 @@
   :bind
   (:map company-active-map
         ("M-t" . (lambda () (interactive) (company-complete-common-or-cycle 1)))
-        ("M-n" . (lambda () (interactive) (company-complete-common-or-cycle -1))))
+        ("M-n" . (lambda () (interactive) (company-complete-common-or-cycle -1)))
+        )
   :hook
   (after-init . global-company-mode)
   :custom
@@ -740,21 +799,21 @@
   ;;   :config
   ;;   (company-tng-configure-default))
   (if window-system
-	(custom-set-faces
-	'(company-preview
-	   ((t (:foreground "darkgray" :underline t))))
-	'(company-preview-common
-	   ((t (:inherit company-preview))))
-	'(company-tooltip
+	    (custom-set-faces
+	     '(company-preview
+	       ((t (:foreground "darkgray" :underline t))))
+	     '(company-preview-common
+	       ((t (:inherit company-preview))))
+	     '(company-tooltip
 	   ((t (:background "lightgray" :foreground "black"))))
-	'(company-tooltip-selection
-	   ((t (:background "steelblue" :foreground "white"))))
-	'(company-tooltip-common
-	   ((((type x)) (:inherit company-tooltip :weight bold))
-		(t (:inherit company-tooltip))))
-	'(company-tooltip-common-selection
-	   ((((type x)) (:inherit company-tooltip-selection :weight bold))
-		(t (:inherit company-tooltip-selection))))))
+	     '(company-tooltip-selection
+	       ((t (:background "steelblue" :foreground "white"))))
+	     '(company-tooltip-common
+	       ((((type x)) (:inherit company-tooltip :weight bold))
+		      (t (:inherit company-tooltip))))
+	     '(company-tooltip-common-selection
+	       ((((type x)) (:inherit company-tooltip-selection :weight bold))
+		      (t (:inherit company-tooltip-selection))))))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -845,11 +904,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package org
   :ensure t
+  :init
+  (require 'org-protocol)
+  (require 'org-capture)
   :mode ("\\.org\\'" . org-mode)
   :custom
+  (org-directory (expand-file-name my:org-dir))
+  (org-default-notes-file (concat org-directory my:org-default-notes))
+  (org-agenda-files (list org-directory))
   (org-log-done 'time)
   (org-todo-keywords '((sequence "TODO" "INPROGRESS" "DONE")))
-  (org-todo-keyword-faces '(("INPROGRESS" . (:foreground "blue" :weight bold))))
+  (org-todo-keyword-faces '(("INPROGRESS" . (:foreground "red" :weight bold))))
+  (org-refile-targets (mapcar (lambda (tg) (cons (concat (expand-file-name my:org-dir) (car tg)) (cdr tg))) my:org-refile-targets))
   :config
   (use-package org-bullets
     :ensure t
@@ -858,7 +924,8 @@
     :ensure t
     :hook
     (org-mode . writegood-mode)
-    ))
+    )
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; web-mode
@@ -1327,3 +1394,12 @@
  '(which-func ((t (:foreground "#8fb28f")))))
 
 (provide '.emacs)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(git-gutter:update-interval 5)
+ '(package-selected-packages
+   (quote
+    (slime-company org-plus-contrib zzz-to-char yasnippet-snippets yapfify yaml-mode xref-js2 writegood-mode window-numbering which-key wgrep web-mode vlf use-package tree-mode string-inflection slime request-deferred realgud rainbow-delimiters powerline paredit origami org-bullets modern-cpp-font-lock markdown-mode magit-gerrit json-mode indium hungry-delete google-translate google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy ein edit-server cuda-mode cpputils-cmake counsel-etags company-tern company-lsp company-jedi cmake-font-lock clang-format bui beacon autopair auto-package-update auctex 0blayout))))
