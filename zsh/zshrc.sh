@@ -27,3 +27,9 @@ source $HOME/.zsh_exports
 #			  KEY BINDINGS   
 ############################################
 source $HOME/.keybindings
+
+############################################
+#			 	TWEEKS 
+############################################
+
+unsetopt autopushd

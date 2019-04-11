@@ -28,6 +28,7 @@ case $arg in
 		try_link zsh/zshrc.sh .zshrc
 		try_link zsh/keybindings.sh .keybindings
 		try_link zsh/zsh_exports.sh .zsh_exports
+		try_link zsh/zsh-dircolors.config .zsh-dircolors.config
 		;;
 	emacs)
 		try_link emacs/emacs.el .emacs.el

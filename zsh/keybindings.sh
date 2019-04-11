@@ -66,3 +66,11 @@ KEYTIMEOUT=1
 	}
 	zle -N add_sudo
 	bindkey "^s" add_sudo
+
+# editor
+	function add_editor() { 
+		BUFFER=$EDITOR" "$BUFFER
+		zle end-of-line
+	}
+	zle -N add_editor
+	bindkey "^[e" add_editor 
