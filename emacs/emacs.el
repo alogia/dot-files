@@ -27,7 +27,7 @@
 ;;Defines capture templates
 (setq org-capture-templates
       `(
-        ;; TODO --FIX ALL THESE TEMPLATES
+        ;; TODO  =============================  FIX ALL THESE TEMPLATES
         ("n" "Notes" entry (file ,(concat my:org-dir "notes.org"))
          "* %?%^G\n  :PROPERTIES:\n  :ENTERED_ON: %T\n  :END:\n%i\n")
         ("i" "Ideas" entry (file ,(concat my:org-dir "ideas.org"))
@@ -37,7 +37,7 @@
         ("p" "Projects" entry (file ,(concat my:org-dir "projects.org"))
          "* %?%^G\n  :PROPERTIES:\n  :ENTERED_ON: %T\n  :END:\n%i\n")
         ("b" "Bookmarks" entry (file ,(concat my:org-dir "bookmarks.org"))
-         "* [[%:link][%:description]]\n TAGS::%?%^G\n %i" :empty-lines 1)
+         "* [[%:link][%:description]]\n TAGS:%?%^G\n %i" :empty-lines 1)
         ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -674,25 +674,43 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Python mode settings
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; TODO -- FIX this syntax
-(setq-default python-indent 4)
-(setq-default python-indent-offset 4)
-(add-hook 'python-mode-hook
-          (lambda ()
+
+(use-package python
+  :mode ("\\.py\\'" . python-mode)
+        ("\\.wsgi$" . python-mode)
+  :interpreter ("python" . python-mode)
+  :init
+  (setq-default indent-tabs-mode nil)
+  (setq-default pdb-command-name "python -m pdb")
+  :custom
+  (python-indent 4)
+  (python-indent-offset 4)
+  :hook
+  (python-mode . (lambda ()
             (setq tab-width 4)))
-(setq-default pdb-command-name "python -m pdb")
+  )
+
+
+
+
 (use-package elpy
   :ensure t
   :commands (elpy-enable)
   :after python
+  :custom
+  (python-shell-interpreter "ipython")
+  (python-shell-interpreter-args "-i --simple-prompt")
+  ;; (elpy-rpc-backend "jedi")
   :config
   (elpy-enable)
+  :hook
+  (python-mode . elpy-mode)
   )
 
-(use-package yapfify
-  :ensure t
-  :hook
-  (python-mode . yapf-mode))
+;; (use-package yapfify
+;;   :ensure t
+;;   :hook
+;;   (python-mode . yapf-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Clang-format
@@ -842,14 +860,19 @@
 
 ;; Setup loading company-jedi for python completion
 ;; This requines running jedi:install-server the first time
-(use-package company-jedi
-  :ensure t
-  :after python
-  :init
-  (defun my/python-mode-hook ()
-    (add-to-list 'company-backends 'company-jedi))
-  (add-hook 'python-mode-hook 'my/python-mode-hook)
-  )
+;; (use-package company-jedi
+;;   :ensure t
+;;   :after python
+;;   :init
+;;   (defun my/python-mode-hook ()
+;;     (add-to-list 'company-backends 'company-jedi))
+;;   (add-hook 'python-mode-hook 'my/python-mode-hook)
+;;   :hook
+;;   (python-mode . jedi:setup)
+;;   ;; :custom
+;;   ;; (jedi:setup-keys t)
+;;   ;; (jedi:complete-on-dot t)
+;;   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Configure flycheck
@@ -1402,4 +1425,4 @@
  '(git-gutter:update-interval 5)
  '(package-selected-packages
    (quote
-    (slime-company org-plus-contrib zzz-to-char yasnippet-snippets yapfify yaml-mode xref-js2 writegood-mode window-numbering which-key wgrep web-mode vlf use-package tree-mode string-inflection slime request-deferred realgud rainbow-delimiters powerline paredit origami org-bullets modern-cpp-font-lock markdown-mode magit-gerrit json-mode indium hungry-delete google-translate google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy ein edit-server cuda-mode cpputils-cmake counsel-etags company-tern company-lsp company-jedi cmake-font-lock clang-format bui beacon autopair auto-package-update auctex 0blayout))))
+    (slime-company org-plus-contrib zzz-to-char yasnippet-snippets yapfify yaml-mode xref-js2 writegood-mode window-numbering which-key wgrep web-mode vlf use-package tree-mode string-inflection slime request-deferred realgud rainbow-delimiters powerline paredit origami org-bullets modern-cpp-font-lock markdown-mode magit-gerrit json-mode indium hungry-delete google-translate google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy ein edit-server cuda-mode cpputils-cmake counsel-etags company-tern company-lsp cmake-font-lock clang-format bui beacon autopair auto-package-update auctex 0blayout))))
