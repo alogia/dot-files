@@ -9,6 +9,7 @@ shelltitle "$ |bash"
 # Tell screen how to set colors. AB = background, AF=foreground 
 #termcapinfo xterm 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm' 
 terminfo rxvt-unicode 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm'
+terminfo xterm-termite 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm'
 
 # By default, screen uses an 8-color terminal emulator. Use the
 # following line to enable more colors
