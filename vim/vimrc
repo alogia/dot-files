@@ -15,6 +15,28 @@ filetype plugin indent on
 let mapleader = "," 
 set background=dark
 
+"jkhh
+"====================================================
+"                  DVORAK KEYMODS
+"====================================================
+"'k' Repeat last search
+no k n
+no K N
+"'j' Jump to character
+no j t
+"Up and down under k/l
+no t j
+no n k
+no s l
+"'s' prompt
+no S $
+no H ^
+no - :
+no N <C-w><C-w>
+no T <C-w><C-r>
+no T 8<Up>
+"no D <C-w><C-r>
+
 
 "====================================================
 "                  VUNDLE SETUP
@@ -24,11 +46,16 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 	Plugin 'VundleVim/Vundle.vim'
 
-	Plugin 'eagletmt/ghcmod-vim'
+	Plugin 'aouelete/sway-vim-syntax'
 	Plugin 'Shougo/vimproc.vim'
 	Plugin 'derekwyatt/vim-scala'
 	Plugin 'vhdirk/vim-cmake'
 	Plugin 'skywind3000/asyncrun.vim'
+
+	Plugin 'autozimu/LanguageClient-neovim', {
+				\ 'branch': 'next',
+				\ 'do': './install.sh'
+				\ }
 
 	"Vim Functionality
 	Plugin 'ctrlpvim/ctrlp.vim'
