@@ -685,12 +685,24 @@
   :custom
   (python-indent 4)
   (python-indent-offset 4)
+  (python-shell-interpreter "ipython")
+  (python-shell-interpreter-args "-i --simple-prompt")
   :hook
   (python-mode . (lambda ()
-            (setq tab-width 4)))
+                   (setq tab-width 4)))
+  :config
+  (bind-key "C-n" 'comint-previous-input inferior-python-mode-map)
+  (bind-key "C-t" 'comint-next-input inferior-python-mode-map)
+ ; ("M-." . xref-find-definitions)
   )
 
 
+(use-package pyenv-mode
+  :ensure t
+  :config
+  (use-package pyenv-mode-auto
+    :ensure t)
+  )
 
 
 (use-package elpy
@@ -698,14 +710,15 @@
   :commands (elpy-enable)
   :after python
   :custom
-  (python-shell-interpreter "ipython")
-  (python-shell-interpreter-args "-i --simple-prompt")
-  ;; (elpy-rpc-backend "jedi")
+  (elpy-rpc-backend "jedi")
+  (elpy-use-ipython "ipython")
   :config
   (elpy-enable)
   :hook
   (python-mode . elpy-mode)
-  )
+  :bind
+  ("M-." . elpy-goto-definition)
+  ("M-," . pop-tag-mark))
 
 ;; (use-package yapfify
 ;;   :ensure t
@@ -1425,4 +1438,4 @@
  '(git-gutter:update-interval 5)
  '(package-selected-packages
    (quote
-    (slime-company org-plus-contrib zzz-to-char yasnippet-snippets yapfify yaml-mode xref-js2 writegood-mode window-numbering which-key wgrep web-mode vlf use-package tree-mode string-inflection slime request-deferred realgud rainbow-delimiters powerline paredit origami org-bullets modern-cpp-font-lock markdown-mode magit-gerrit json-mode indium hungry-delete google-translate google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy ein edit-server cuda-mode cpputils-cmake counsel-etags company-tern company-lsp cmake-font-lock clang-format bui beacon autopair auto-package-update auctex 0blayout))))
+    (pyenv-mode-auto pyenv-mode slime-company org-plus-contrib zzz-to-char yasnippet-snippets yapfify yaml-mode xref-js2 writegood-mode window-numbering which-key wgrep web-mode vlf use-package tree-mode string-inflection slime request-deferred realgud rainbow-delimiters powerline paredit origami org-bullets modern-cpp-font-lock markdown-mode magit-gerrit json-mode indium hungry-delete google-translate google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy ein edit-server cuda-mode cpputils-cmake counsel-etags company-tern company-lsp cmake-font-lock clang-format bui beacon autopair auto-package-update auctex 0blayout))))
