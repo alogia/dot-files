@@ -46,6 +46,15 @@ case $arg in
 		try_link xorg/xinitrc .xinitrc
 		try_link xorg/Xresources .Xresources
 		;;
+	sway)
+		try_link wayland/Xdefaults .Xdefaults
+		try_link wayland/sway.config .config/sway/config
+		try_link wayland/swaybar .config/sway/swaybar
+		try_link wayland/termite.config .config/termite/config
+		;;
+	termite)
+		try_link wayland/termite.config .config/termite/config
+		;;
 	xmonad)
 		try_link xmonad/xmonad.hs .xmonad/xmonad.hs
 		;;
