@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if hash yay 2>/dev/null ; then
+	echo "Yay found: Generating mainline and AUR package lists."
+	yay -Qqe > package-list-explicit.yay
+	yay -Qq > package-list-all.yay
+elif hash pacman 2>/dev/null ; then 
+	echo "Pacman found: Generating mainline package list."
+	pacman -Qqe > package-list-explicit.pacman
+	pacman -Qq > package-list-all.pacman
+else
+	echo "Could not find an Arch package manager. Aborting..."
+fi
