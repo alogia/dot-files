@@ -6,8 +6,10 @@
 #attrcolor b ".I" 
 shelltitle "$ |bash"
 
+
+defbce "on" 
 # Tell screen how to set colors. AB = background, AF=foreground 
-#termcapinfo xterm 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm' 
+termcapinfo xterm 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm' 
 terminfo rxvt-unicode 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm'
 terminfo xterm-termite 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm'
 
@@ -19,3 +21,4 @@ startup_message off
 hardstatus alwayslastline
 #hardstatus string '%{= kG}%-Lw%{= kW}%50> %n%f* %t%{= kG}%+Lw%< %{= kG}%-=%c:%s%{-}'
 hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{W} %m-%d %{W}%c %{g}]'
+#hardstatus string ‘%-Lw%{= BW}%50>%n%f* %t%{-}%+Lw%<’
