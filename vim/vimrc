@@ -32,13 +32,19 @@ no s l
 "Start/End of line under H/S
 no S $
 no H ^
-no T <PageDown>
-no N <PageUp>
-no D <C-w><C-r>
+no T <C-d>
+no N <C-u>
+"Start prompt
 no - :
-"no N <C-w><C-w>
-"no T <C-w><C-r>
-
+"Window Navigation
+nnoremap <C-t> <C-W><C-J>
+nnoremap <C-n> <C-W><C-K>
+nnoremap <C-s> <C-W><C-L>
+nnoremap <C-h> <C-W><C-H>
+"Window Resize
+nnoremap <C-_> <C-W>_
+nnoremap <C-\> <C-W><Bar>
+nnoremap <C-W>m <C-W>=
 
 "====================================================
 "                  VUNDLE SETUP
@@ -65,6 +71,7 @@ call vundle#begin()
 	Plugin 'junegunn/fzf'
 	Plugin 'Valloric/YouCompleteMe'
 	Plugin 'scrooloose/nerdtree'
+	Plugin 'Xuyuanp/nerdtree-git-plugin'
 	Plugin 'haya14busa/incsearch.vim'
 
 
@@ -113,4 +120,8 @@ au BufRead,BufNewFile .eslintrc setfiletype json
 
 
 "-----------NerdTree--------------
-map <C-n> :NERDTreeToggle<CR>
+map <C-f> :NERDTreeToggle<CR>
+let NERDTreeQuitOnOpen = 1
+let NERDTreeAutoDeleteBuffer = 1
+let NERDTreeMinimalUI = 1
+let NERDTreeDirArrows = 1
