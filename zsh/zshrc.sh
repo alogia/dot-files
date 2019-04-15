@@ -8,6 +8,7 @@ antigen use oh-my-zsh
 antigen bundle git
 antigen bundle screen
 antigen bundle bundler
+antigen bundle tmux
 
 
 antigen bundle zsh-users/zsh-syntax-highlighting
@@ -32,4 +33,6 @@ source $HOME/.keybindings
 #			 	TWEEKS 
 ############################################
 
+#Turn off flow control.
+stty -ixon 
 unsetopt autopushd
