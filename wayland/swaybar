@@ -1,7 +1,5 @@
 #!/bin/sh
 # The Sway configuration file in ~/.config/sway/config calls this script.
-# You should see changes to the status bar after saving this script.
-# If not, do "killall swaybar" and $mod+Shift+c to reload the configuration.
 
 # Produces "21 days", for example
 uptime_formatted=$(uptime | cut -d ',' -f1  | cut -d ' ' -f4,5)
@@ -16,10 +14,15 @@ battery_percentage=$(acpi | cut -d',' -f2)
 
 ssid=$(iw wlp58s0 info | grep ssid | cut -d' ' -f2)
 
+
 if [ -z ${ssid} ]; then
-    ssid=*disconnected*
-elif ip addr | grep -q 'tun0:'; then
-    ssid+=" => VPN"
+    ssid="*disconnected*"
+else 
+	signal_strength=$(awk 'NR==3 {printf( "%.0f%", $3*10/7 )}' /proc/net/wireless)
+	if ip addr | grep -q 'tun0:'; then
+		ssid="<<<$ssid>>>"
+	fi
+	ssid+=" - $signal_strength"
 fi
     
 echo $uptime_formatted '||' $ssid '||' $battery_status $battery_percentage '||' $date_formatted
