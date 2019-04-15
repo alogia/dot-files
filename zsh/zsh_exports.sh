@@ -5,6 +5,7 @@ export PATH="$PATH:$HOME/bin:$HOME/devel/bin:$(ruby -e 'print Gem.user_dir')/bin
 export QUOTING_STYLE=literal
 export EDITOR=vim
 
+export XCURSOR_SIZE=64
 export QT_QPA_PLATFORM=wayland-egl
 export CLUTTER_BACKEND=wayland
 export SDL_VIDEODRIVER=wayland

@@ -6,6 +6,8 @@ Xft.hintstyle:		hintfull
 Xft.autohint:		false
 Xft.lcdfilter:		lcddefault
 
+Xcursor.size: 		64
+
 URxvt.scrollBar:	false
 URxvt.scrollBar_right:	false
 URxvt.scrollBar_floating:	false
