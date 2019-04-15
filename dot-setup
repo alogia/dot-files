@@ -55,6 +55,9 @@ case $arg in
 	termite)
 		try_link wayland/termite.config .config/termite/config
 		;;
+	tmux)
+		try_link tmux/tmux.conf .tmux.conf
+		;;
 	xmonad)
 		try_link xmonad/xmonad.hs .xmonad/xmonad.hs
 		;;
