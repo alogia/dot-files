@@ -22,17 +22,11 @@ folderfilter = lambda folder: folder not in ['2007-2011-inbox']
 nametrans = lambda f: '[Gmail]/' + f if f in ['Drafts', 'Starred', 'Important', 'Spam', 'Trash', 'All Mail', 'Sent Mail'] else f
 
 [Repository Remote]
-type = IMAP
-auth_mechanisms = XOAUTH2
-oauth2_request_url = https://accounts.google.com/o/oauth2/token
-
-## Read token data from offlineimap.py functions
-oauth2_client_id_eval = get_oath_clientid("alogia@gmail.com")
-oauth2_client_secret_eval = get_oath_secret("alogia@gmail.com")
-oauth2_refresh_token_eval = get_oath_refresh("alogia@gmail.com")
+type = Gmail
 
 remotehost = imap.gmail.com
 remoteuser = alogia@gmail.com
+remotepasseval = get_authinfo_password("imap.gmail.com", "alogia@gmail.com", 993)
 ssl = yes
 ssl_version = tls1_2
 starttls = no

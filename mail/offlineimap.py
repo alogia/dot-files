@@ -1,10 +1,12 @@
 #!/usr/bin/env python
-import re, os
+import re
+import os
 
-#The gmailauth file must be in the format:
-#login XXXX clientid XXXX secret XXXX refresh XXXX
+# The gmailauth file must be in the format:
+# login XXXX clientid XXXX secret XXXX refresh XXXX
 
-authinfo = os.popen("gpg -q --no-tty -d ~/.gmailauth.gpg").read()
+goauthinfo = os.popen("gpg -q --no-tty -d ~/.gmailauth.gpg").read()
+
 
 
 def construct_re(login):
@@ -14,14 +16,21 @@ def construct_re(login):
 
 def get_oath_clientid(login):
     p = construct_re(login)
-    return p.search(authinfo).group(1)
+    return p.search(goauthinfo).group(1)
 
 
 def get_oath_secret(login):
     p = construct_re(login)
-    return p.search(authinfo).group(2)
+    return p.search(goauthinfo).group(2)
 
 
 def get_oath_refresh(login):
     p = construct_re(login)
-    return p.search(authinfo).group(3)
+    return p.search(goauthinfo).group(3)
+
+
+def get_authinfo_password(machine, login, port):
+    s = "machine %s login %s password ([^ ]*) port %s" % (machine, login, port)
+    p = re.compile(s)
+    authinfo = os.popen("gpg -q --no-tty -d ~/.authinfo.gpg").read()
+    return p.search(authinfo).group(1)
