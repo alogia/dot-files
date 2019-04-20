@@ -6,6 +6,10 @@ pythonfile = /home/phetus/.offlineimap.py
 [Account Gmail]
 localrepository = Local
 remoterepository = Remote
+autorefresh = 5
+quick = 10
+postsynchook = mu index --maildir ~/Maildir
+
 
 [Repository Local]
 type = Maildir
@@ -38,7 +42,9 @@ holdconnectionopen = true
 keepalive = 60
 
 ## Setup folders to sync
-folderfilter = lambda foldername: foldername not in ['[Gmail]/Spam', '[Gmail]/All Mail', '[Gmail]/Starred', '[Gmail]/Important', '[Gmail]/Trash']
+folderfilter = lambda foldername: foldername not in ['[Gmail]/Spam', '[Gmail]/All Mail', '[Gmail]/Starred', '[Gmail]/Important']
 
 ## Remove Gmail prefix on IMAP folders
 nametrans = lambda f: f.replace('[Gmail]/', '') if f.startswith('[Gmail]/') else f
+
+
