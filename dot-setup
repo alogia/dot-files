@@ -67,6 +67,10 @@ case $arg in
 	rtorrent)
 		try_link etc/rtorrent.rc .rtorrent.rc
 		;;
+        imap)
+            try_link mail/offlineimaprc .offlineimaprc
+            try_link mail/offlineimap.py .offlineimap.py
+            ;;
 	ycmd)
 		try_link etc/ycm_extra_conf.py .ycm_extra_conf.py
 		;;
