@@ -1,0 +1,44 @@
+[general]
+accounts = Gmail
+maxsyncaccounts = 1
+pythonfile = /home/phetus/.offlineimap.py
+
+[Account Gmail]
+localrepository = Local
+remoterepository = Remote
+
+[Repository Local]
+type = Maildir
+localfolders = ~/Maildir
+restoreatime = no
+
+# Do not sync this folder
+folderfilter = lambda folder: folder not in ['2007-2011-inbox']
+## Remove GMAIL prefix on Google-specific IMAP folders that are pulled down.
+nametrans = lambda f: '[Gmail]/' + f if f in ['Drafts', 'Starred', 'Important', 'Spam', 'Trash', 'All Mail', 'Sent Mail'] else f
+
+[Repository Remote]
+type = IMAP
+auth_mechanisms = XOAUTH2
+oauth2_request_url = https://accounts.google.com/o/oauth2/token
+
+## Read token data from offlineimap.py functions
+oauth2_client_id_eval = get_oath_clientid("alogia@gmail.com")
+oauth2_client_secret_eval = get_oath_secret("alogia@gmail.com")
+oauth2_refresh_token_eval = get_oath_refresh("alogia@gmail.com")
+
+remotehost = imap.gmail.com
+remoteuser = alogia@gmail.com
+ssl = yes
+ssl_version = tls1_2
+starttls = no
+realdelete = no
+sslcacertfile = /etc/ssl/certs/ca-certificates.crt
+holdconnectionopen = true
+keepalive = 60
+
+## Setup folders to sync
+folderfilter = lambda foldername: foldername not in ['[Gmail]/Spam', '[Gmail]/All Mail', '[Gmail]/Starred', '[Gmail]/Important', '[Gmail]/Trash']
+
+## Remove Gmail prefix on IMAP folders
+nametrans = lambda f: f.replace('[Gmail]/', '') if f.startswith('[Gmail]/') else f
