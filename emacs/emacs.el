@@ -170,6 +170,9 @@
 ;; We don't want to type yes and no all the time so, do y and n
 (defalias 'yes-or-no-p 'y-or-n-p)
 (turn-on-auto-fill)
+;; set 'term default shell
+(setq-default explicit-shell-file-name "/usr/bin/zsh")
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -232,6 +235,12 @@
 ;; Autoindent open-*-lines
 (defvar newline-and-indent t
   "Modify the behavior of the open-*-line functions to cause them to autoindent.")
+
+;; Start default term/shell
+(defun start-default-term ()
+  (interactive) (term explicit-shell-file-name))
+
+(define-key global-map (kbd "C-c t") #'start-default-term)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -303,35 +312,36 @@
   )
 
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Global Key Bindings regardless of any mode
 ;; ONLY USE FOR BINDINGS WHICH SHOULD NEVER BE OVERRIDDEN BY ANY MODE
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (bind-keys*
- ("C-t"   . forward-paragraph)
- ("C-S-t" . backward-paragraph)
- ("M-t"   . next-line)
- ("M-n"   . previous-line)
- ("M-s"   . forward-char)
- ("M-h"   . backward-char)
- ("M-b"   . backward-word)
- ("M-l"   . forward-word)
- ("C-n"   . move-end-of-line)
- ("S-SPC" . set-mark-command)
- ("C-e"   . mark-sexp)
- ("<f6>"  . linum-mode)
- ("C-o"   .  vi-open-previous-line)
- ("M-o"   .  vi-open-next-line)
- ("C-c l" . org-store-link)
- ("C-c a" . org-agenda)
- ("C-c c" . org-capture)
- ("C-c o" . org-open-main)
+ ("C-t"     . forward-paragraph)
+ ("C-S-t"   . backward-paragraph)
+ ("M-t"     . next-line)
+ ("M-n"     . previous-line)
+ ("M-s"     . forward-char)
+ ("M-h"     . backward-char)
+ ("M-b"     . backward-word)
+ ("M-l"     . forward-word)
+ ("C-n"     . move-end-of-line)
+ ("S-SPC"   . set-mark-command)
+ ("C-e"     . mark-sexp)
+ ("<f6>"    . linum-mode)
+ ("C-o"     .  vi-open-previous-line)
+ ("M-o"     .  vi-open-next-line)
+ ("C-c l"   . org-store-link)
+ ("C-c a"   . org-agenda)
+ ("C-c c"   . org-capture)
+ ("C-c o"   . org-open-main)
  ("C-/"     . undo)
- ("C-x M-f" . project-find-file))
+ ("C-x M-f" . project-find-file)
+ ("C-c i"   . ielm))
 
 ;; Unbind C-z from suspend-frame
 (global-unset-key (kbd "C-z"))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 import re
-import os
+from subprocess import check_output
 
 # The gmailauth file must be in the format:
 # login XXXX clientid XXXX secret XXXX refresh XXXX
 
-goauthinfo = os.popen("gpg -q --no-tty -d ~/.gmailauth.gpg").read()
+#goauthinfo = os.popen("gpg -q --no-tty -d ~/.gmailauth.gpg").read()
 
 
 
@@ -32,5 +32,5 @@ def get_oath_refresh(login):
 def get_authinfo_password(machine, login, port):
     s = "machine %s login %s password ([^ ]*) port %s" % (machine, login, port)
     p = re.compile(s)
-    authinfo = os.popen("gpg -q --no-tty -d ~/.authinfo.gpg").read()
+    authinfo = check_output("gpg -dq ~/.authinfo.gpg", shell=True)
     return p.search(authinfo).group(1)
