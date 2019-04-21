@@ -318,14 +318,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (bind-keys*
  ("C-t"     . forward-paragraph)
- ("C-S-t"   . backward-paragraph)
+ ("C-n"     . backward-paragraph)
+ ("C-h"     . back-to-indentation)
  ("M-t"     . next-line)
  ("M-n"     . previous-line)
  ("M-s"     . forward-char)
  ("M-h"     . backward-char)
  ("M-b"     . backward-word)
  ("M-l"     . forward-word)
- ("C-n"     . move-end-of-line)
+ ("C-s"     . move-end-of-line)
  ("S-SPC"   . set-mark-command)
  ("C-e"     . mark-sexp)
  ("<f6>"    . linum-mode)
@@ -382,8 +383,7 @@
 
 (use-package swiper
   :ensure t
-  :bind (("C-s" . swiper)
-         ("C-r" . swiper))
+  :bind (("C--" . swiper))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -394,6 +394,13 @@
   :config
   (setq tramp-default-method "ssh"))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Define Word
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package define-word
+  :ensure t
+  :bind
+  ("C-c d" . define-word-at-point))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Setup Slime mode
@@ -1558,4 +1565,4 @@
  '(git-gutter:update-interval 5)
  '(package-selected-packages
    (quote
-    (mu4e-alert mu4e dired-rainbow pyenv-mode-auto pyenv-mode slime-company org-plus-contrib zzz-to-char yasnippet-snippets yapfify yaml-mode xref-js2 writegood-mode window-numbering which-key wgrep web-mode vlf use-package tree-mode string-inflection slime request-deferred realgud rainbow-delimiters powerline paredit origami org-bullets modern-cpp-font-lock markdown-mode magit-gerrit json-mode indium hungry-delete google-translate google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy ein edit-server cuda-mode cpputils-cmake counsel-etags company-tern company-lsp cmake-font-lock clang-format bui beacon autopair auto-package-update auctex 0blayout))))
+    (define-word mu4e-alert mu4e dired-rainbow pyenv-mode-auto pyenv-mode slime-company org-plus-contrib zzz-to-char yasnippet-snippets yapfify yaml-mode xref-js2 writegood-mode window-numbering which-key wgrep web-mode vlf use-package tree-mode string-inflection slime request-deferred realgud rainbow-delimiters powerline paredit origami org-bullets modern-cpp-font-lock markdown-mode magit-gerrit json-mode indium hungry-delete google-translate google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy ein edit-server cuda-mode cpputils-cmake counsel-etags company-tern company-lsp cmake-font-lock clang-format bui beacon autopair auto-package-update auctex 0blayout))))
