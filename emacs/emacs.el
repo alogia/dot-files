@@ -238,8 +238,7 @@
 
 ;; Start default term/shell
 (defun start-default-term ()
-  (interactive) (term explicit-shell-file-name))
-
+  (interactive) (term expicit-shell-file-name))
 (define-key global-map (kbd "C-c t") #'start-default-term)
 
 
@@ -327,11 +326,14 @@
  ("M-b"     . backward-word)
  ("M-l"     . forward-word)
  ("C-s"     . move-end-of-line)
+ ("M-c"     . avy-goto-char)
+ ("M-r"     . avy-goto-word-1)
  ("S-SPC"   . set-mark-command)
  ("C-e"     . mark-sexp)
+ ("<f5>"    . toggle-truncate-lines)
  ("<f6>"    . linum-mode)
- ("C-o"     .  vi-open-previous-line)
- ("M-o"     .  vi-open-next-line)
+ ("C-o"     . vi-open-previous-line)
+ ("M-o"     . vi-open-next-line)
  ("C-c l"   . org-store-link)
  ("C-c a"   . org-agenda)
  ("C-c c"   . org-capture)
@@ -339,6 +341,12 @@
  ("C-/"     . undo)
  ("C-x M-f" . project-find-file)
  ("C-c i"   . ielm))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Global Key Bindings Which can be overridden by minor modes
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(global-set-key (kbd "C-c v") 'visual-line-mode)
+
 
 ;; Unbind C-z from suspend-frame
 (global-unset-key (kbd "C-z"))
@@ -400,7 +408,8 @@
 (use-package define-word
   :ensure t
   :bind
-  ("C-c d" . define-word-at-point))
+  ("C-c d" . define-word-at-point)
+  ("C-c D" . define-word))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Setup Slime mode
@@ -772,7 +781,7 @@
 (use-package avy
   :ensure t
   :bind (("M-c" . avy-goto-char)
-         ("M-s" . avy-goto-word-1))
+         ("M-r" . avy-goto-word-1))
   ;; Set keys for Dvorak mode instead of qwerty
   :init (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s
                             ?A ?O ?E ?U ?I ?D ?H ?T ?N ?S
@@ -1160,7 +1169,7 @@
   :ensure t
   :init
   (eval-when-compile
-    ;; Silence missing function warnings
+    ;; Silence missing function warnings  
     (declare-function flyspell-goto-next-error "flyspell.el")
     (declare-function flyspell-mode "flyspell.el")
     (declare-function flyspell-prog-mode "flyspell.el"))
@@ -1173,7 +1182,8 @@
     (ispell-word))
   :bind
   (("<f7>"  . flyspell-mode)
-   ("<f8>"  . flyspell-auto-correct-word))
+   ("<f8>"  . flyspell-correct-word)
+   ("C-c s" . flyspell-correct-previous))
   :hook
   ((text-mode LaTeX-mode org-mode) . flyspell-mode)
   (prog-mode . flyspell-prog-mode)
@@ -1349,7 +1359,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package markdown-mode
   :ensure t
-  :mode (".md" ".markdown"))
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :custom
+  (markdown-coding-system "utf-8")
+  (markdown-command (concat
+       "/usr/bin/pandoc"
+       " --from=markdown --to=html"
+       " --standalone --mathjax --highlight-style=pygments")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; LSP Mode
