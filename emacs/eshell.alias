@@ -1,0 +1,9 @@
+alias d dired $1
+alias gp git push
+alias gcam git commit -a -m $1
+alias ga git add $1
+alias gds magit-diff-staged
+alias gd magit-diff-unstaged
+alias e find-file-other-window $1
+alias ff find-file-other-window $1
+alias c clear
