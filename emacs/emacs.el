@@ -5,8 +5,7 @@
 ;; Should emacs use a compiled init file?
 (defvar my:compiled-init nil)
 ;;; Define the commands which will be run in an ansi-term instead of eshell
-(defvar my:eshell-visual-commands '("ssh" "tail" "htop"))
-
+(defvar my:eshell-visual-commands '("ssh" "tail" "htop" "tmux" "vim"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Org Mode setup
@@ -115,7 +114,6 @@
 
 (setq inhibit-splash-screen t)
 (scroll-bar-mode -1)
-
 (defvar my-font-size 85)
 ;; Make mode bar small
 (set-face-attribute 'mode-line nil  :height my-font-size)
@@ -241,86 +239,19 @@
 
 ;; Start default term/shell
 (defun start-default-term ()
-  (interactive) (term expicit-shell-file-name))
+  "Start the default terminal."
+  (interactive) (term explicit-shell-file-name))
 (define-key global-map (kbd "C-c t") #'start-default-term)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Eshell functions and key bindings
+;; Eshell
+;; Custom commands are kept in .emacs.d/eshell/commands
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun eshell-here ()
-  "Opens up a new shell in the directory associated with the
-current buffer's file. The eshell is renamed to match that
-directory to make multiple eshell windows easier."
-  (interactive)
-  (let* ((parent (if (buffer-file-name)
-                     (file-name-directory (buffer-file-name))
-                   default-directory))
-         (height (/ (window-total-height) 3))
-         (name   (car (last (split-string parent "/" t)))))
-    (split-window-vertically (- height))
-    (other-window 1)
-    (eshell "new")
-    (rename-buffer (concat "*eshell: " name "*"))
-
-    (insert (concat "ls"))
-    (eshell-send-input)))
-(global-set-key (kbd "C-!")  'eshell-here)
-
-(defun eshell/x ()
-  "Exits an eshell buffer and closes the window."
-  (interactive)
-  (insert "exit")
-  (eshell-send-input)
-  (delete-window))
-
-(defun eshell/find (filename &optional dir try-count)
-  "Searches for files matching FILENAME in either DIR or the
-current directory. Just a typical wrapper around the standard
-`find' executable.
-
-Since any wildcards in FILENAME need to be escaped, this wraps the shell command.
-
-If not results were found, it calls the `find' executable up to
-two more times, wrapping the FILENAME pattern in wildcat
-matches. This seems to be more helpful to me."
-  (let* ((cmd (concat
-               (executable-find "find")
-               " " (or dir ".")
-               "      -not -path '*/.git*'"
-               " -and -not -path '*node_modules*'"
-               " -and -not -path '*classes*'"
-               " -and "
-               " -type f -and "
-               "-iname '" filename "'"))
-         (results (shell-command-to-string cmd)))
-
-    (if (not (s-blank-str? results))
-        results
-      (cond
-       ((or (null try-count) (= 0 try-count))
-        (eshell/f (concat filename "*") dir 1))
-       ((or (null try-count) (= 1 try-count))
-        (eshell/f (concat "*" filename) dir 2))
-       (t "")))))
-
-
-(defun eshell/ef (filename &optional dir)
-  "Searches for the first matching filename and loads it into a
-file to edit."
-  (let* ((files (eshell/f filename dir))
-         (file (car (s-split "\n" files))))
-    (find-file file)))
-
-(defun eshell/clear ()
-  "clear the eshell buffer."
-  (interactive)
-  (let ((inhibit-read-only t))
-    (erase-buffer)))
 
 (use-package eshell
   :init
+  (load (expand-file-name "~/.emacs.d/eshell/commands.el"))
   (setenv "PATH"
         (concat
          "/usr/local/bin:/usr/local/sbin:" ;TODO: Add all the proper paths in here
@@ -333,12 +264,12 @@ file to edit."
   (eshell-save-history-on-exit t)
   (eshell-prefer-lisp-functions nil)
   (eshell-destroy-buffer-when-process-dies t)
-  
   :hook
   (eshell-mode . (lambda ()
                    ;; Must define keymap in mode hook
                    (define-key eshell-mode-map (kbd "C-!") 'eshell/x)
-                   (append 'my:eshell-visual-commands 'eshell-visual-commands)))
+                   (setq eshell-visual-commands
+                         (delete-dups (append my:eshell-visual-commands eshell-visual-commands)))))
   )
                    
 
@@ -448,7 +379,7 @@ file to edit."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (global-set-key (kbd "C-c v") 'visual-line-mode)
 (global-set-key (kbd "C-c i") 'ielm)
-
+(global-set-key (kbd "M-.")  'xref-find-definitions)
 
 ;; Unbind C-z from suspend-frame
 (global-unset-key (kbd "C-z"))
@@ -619,27 +550,25 @@ file to edit."
          ("M-." . counsel-etags-find-tag-at-point)
          ("M-t" . counsel-etags-grep-symbol-at-point)
          ("M-s" . counsel-etags-find-tag))
-  :config
+  :hook
+  ;; Set up auto-update
+  (prog-mode . 
+   (lambda () (add-hook 'after-save-hook (lambda () (counsel-etags-virtual-update-tags)))))
+  :custom
   ;; Ignore files above 800kb
-  (setq counsel-etags-max-file-size 800)
+  (counsel-etags-max-file-size 800)
+  ;; Don't ask before rereading the TAGS files if they have changed
+  (tags-revert-without-query t)
+  ;; Don't warn when TAGS files are large
+  (large-file-warning-threshold nil)
+  ;; How many seconds to wait before rerunning tags for auto-update
+  (counsel-etags-update-interval 180)  
+  :config
   ;; Ignore build directories for tagging
   (add-to-list 'counsel-etags-ignore-directories '"build*")
   (add-to-list 'counsel-etags-ignore-directories '".vscode")
   (add-to-list 'counsel-etags-ignore-filenames '".clang-format")
-  ;; Don't ask before rereading the TAGS files if they have changed
-  (setq tags-revert-without-query t)
-  ;; Don't warn when TAGS files are large
-  (setq large-file-warning-threshold nil)
-  ;; How many seconds to wait before rerunning tags for auto-update
-  (setq counsel-etags-update-interval 180)
-  ;; Set up auto-update
-  (add-hook
-   'prog-mode-hook
-   (lambda () (add-hook 'after-save-hook
-                        (lambda ()
-                          (counsel-etags-virtual-update-tags))))
-   )
-
+  
   ;; The function provided by counsel-etags is broken (at least on Linux)
   ;; and doesn't correctly exclude directories, leading to an excessive
   ;; amount of incorrect tags. The issue seems to be that the trailing '/'
@@ -931,7 +860,7 @@ file to edit."
   :config
   (bind-key "C-n" 'comint-previous-input inferior-python-mode-map)
   (bind-key "C-t" 'comint-next-input inferior-python-mode-map)
- ; ("M-." . xref-find-definitions)
+ 
   )
 
 
@@ -954,9 +883,9 @@ file to edit."
   (elpy-enable)
   :hook
   (python-mode . elpy-mode)
-  :bind
-  ("M-." . elpy-goto-definition)
-  ("M-," . pop-tag-mark))
+  (python-mode . (lambda ()
+                   (define-key python-mode-map (kbd "M-.") 'elpy-goto-definition)
+                   (define-key python-mode-map (kbd "M-,")  'pop-tag-mark))))
 
 ;; (use-package yapfify
 ;;   :ensure t
@@ -1216,6 +1145,24 @@ file to edit."
          ("\\.html?\\'" . web-mode))
   )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Elisp config 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package emacs-lisp-mode
+  :init
+  (progn
+    (use-package eldoc
+      :init (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode))
+    (use-package macrostep
+      :bind ("C-c e" . macrostep-expand))
+    (use-package ert
+      :config (add-to-list 'emacs-lisp-mode-hook 'ert--activate-font-lock-keywords)))
+  :config
+  (progn
+    (setq tab-always-indent 'complete)
+    (add-to-list 'completion-styles 'initials t))
+  :bind (("M-." . xref-find-definitions))
+  :interpreter (("emacs" . emacs-lisp-mode)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; autopair

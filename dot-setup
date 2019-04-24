@@ -33,7 +33,8 @@ case $arg in
 	emacs)
 		try_link emacs/emacs.el .emacs.el
 		try_link emacs/sbclrc .sbclrc
-		try_link emacs/eshell.alias .emacs.d/eshell/alias
+		try_link emacs/eshell/alias .emacs.d/eshell/alias
+		try_link emacs/eshell/commands.el .emacs.d/eshell/commands.el
 		;;
 	screen)
 		try_link etc/screenrc .screenrc
