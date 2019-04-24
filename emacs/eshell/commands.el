@@ -82,3 +82,19 @@ file to edit."
   (interactive)
   (let ((inhibit-read-only t))
     (erase-buffer)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun eshell/info (subject)
+  "Read the Info manual on SUBJECT."
+  (let ((buf (current-buffer)))
+	(Info-directory)
+	(let ((node-exists (ignore-errors (Info-menu subject))))
+	  (if node-exists
+		0
+		;; We want to switch back to *eshell* if the requested
+		;; Info manual doesn't exist.
+		(switch-to-buffer buf)
+		(eshell-print (format "There is no Info manual on %s.\n"
+							  subject))
+		1))))

@@ -180,6 +180,9 @@
 ;;    Some default hooks
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; Enable hide/show of code blocks
+(add-hook 'c-mode-common-hook 'hs-minor-mode)
+
 ;; Remove trailing white space upon saving
 (add-hook 'before-save-hook #'(delete-trailing-whitespace))
 
@@ -243,35 +246,6 @@
   (interactive) (term explicit-shell-file-name))
 (define-key global-map (kbd "C-c t") #'start-default-term)
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Eshell
-;; Custom commands are kept in .emacs.d/eshell/commands
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(use-package eshell
-  :init
-  (load (expand-file-name "~/.emacs.d/eshell/commands.el"))
-  (setenv "PATH"
-        (concat
-         "/usr/local/bin:/usr/local/sbin:" ;TODO: Add all the proper paths in here
-         (getenv "PATH")))
-  
-  :custom
-  (eshell-scroll-to-bottom-on-input 'all)
-  (eshell-error-if-no-glob t)
-  (eshell-hist-ignoredups t)
-  (eshell-save-history-on-exit t)
-  (eshell-prefer-lisp-functions nil)
-  (eshell-destroy-buffer-when-process-dies t)
-  :hook
-  (eshell-mode . (lambda ()
-                   ;; Must define keymap in mode hook
-                   (define-key eshell-mode-map (kbd "C-!") 'eshell/x)
-                   (setq eshell-visual-commands
-                         (delete-dups (append my:eshell-visual-commands eshell-visual-commands)))))
-  )
-                   
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Automatically compile and save ~/.emacs.el
@@ -405,6 +379,35 @@
 (use-package s
   :ensure t)
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Eshell
+;; Custom commands are kept in .emacs.d/eshell/commands
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package eshell
+  :init
+  (load (expand-file-name "~/.emacs.d/eshell/commands.el"))
+  (setenv "PATH"
+        (concat
+         "/usr/local/bin:/usr/local/sbin:" ;TODO: Add all the proper paths in here
+         (getenv "PATH")))
+  
+  :custom
+  (eshell-scroll-to-bottom-on-input 'all)
+  (eshell-error-if-no-glob t)
+  (eshell-hist-ignoredups t)
+  (eshell-save-history-on-exit t)
+  (eshell-prefer-lisp-functions nil)
+  (eshell-destroy-buffer-when-process-dies t)
+  :hook
+  (eshell-mode . (lambda ()
+                   ;; Must define keymap in mode hook
+                   (define-key eshell-mode-map (kbd "C-!") 'eshell/x)
+                   (setq eshell-visual-commands
+                         (delete-dups (append my:eshell-visual-commands eshell-visual-commands)))))
+  )
+                   
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Ivy config
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -422,6 +425,9 @@
   (setq ivy-count-format "%d/%d ")
   )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Swiper config
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package swiper
   :ensure t
   :bind (("C--" . swiper))
@@ -499,7 +505,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Setup Counsel mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (use-package counsel
   :ensure t
   :bind (("M-x" . counsel-M-x)
@@ -701,7 +706,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; EasyPG
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (use-package epa
   :ensure t
   :custom
@@ -736,7 +740,6 @@
    ;;  (concat
    ;;    "Foo X. Bar\n"
    ;;    "http://www.example.com\n")    
-
   ;;Must have the gnutls package installed
   :config
   (use-package smtpmail
@@ -769,6 +772,7 @@
   (run-with-timer 0 60 'gjstein-refresh-mu4e-alert-mode-line)
   ))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rainbow Delimiters -  have delimiters be colored by their depth
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -779,6 +783,7 @@
     ;; Silence missing function warnings
     (declare-function rainbow-delimiters-mode "rainbow-delimiters.el"))
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Beacon-mode: flash the cursor when switching buffers or scrolling
@@ -793,6 +798,7 @@
   :config
   (beacon-mode t))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; which-key: when you pause on a keyboard shortcut it provides
 ;;            suggestions in a popup buffer
@@ -805,6 +811,7 @@
     (declare-function which-key-mode "which-key.el"))
   :config
   (which-key-mode))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; avy: always fast jump to char inside the current view buffer
@@ -819,6 +826,7 @@
                             ?p ?y ?f ?g ?c ?r ?l
                             ?P ?Y ?F ?G ?C ?R ?L)))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; zzz-to-char: replaces the built-in zap-to-char with avy-like
 ;;              replacement options
@@ -826,6 +834,7 @@
 (use-package zzz-to-char
   :ensure t
   :bind ("M-z" . zzz-up-to-char))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; RealGud - https://github.com/realgud/realgud
@@ -838,10 +847,10 @@
   :custom
   (realgud:pdb-command-name "python -m pdb"))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Python mode settings
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (use-package python
   :mode ("\\.py\\'" . python-mode)
         ("\\.wsgi$" . python-mode)
@@ -859,11 +868,12 @@
                    (setq tab-width 4)))
   :config
   (bind-key "C-n" 'comint-previous-input inferior-python-mode-map)
-  (bind-key "C-t" 'comint-next-input inferior-python-mode-map)
- 
+  (bind-key "C-t" 'comint-next-input inferior-python-mode-map) 
   )
 
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Pyenv-mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package pyenv-mode
   :ensure t
   :config
@@ -871,7 +881,9 @@
     :ensure t)
   )
 
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Elpy Mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package elpy
   :ensure t
   :commands (elpy-enable)
@@ -892,6 +904,31 @@
 ;;   :hook
 ;;   (python-mode . yapf-mode))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Scala Mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package ensime
+  :ensure t
+  )
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Scala Mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package sbt-mode
+  :ensure t
+  )
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Scala Mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package scala-mode
+  :ensure t
+  :interpreter ("scala" . scala-mode))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Clang-format
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -901,6 +938,7 @@
 (use-package clang-format
   :ensure t
   :bind ("C-c C-f" . clang-format-region))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Modern C++ code highlighting
@@ -915,6 +953,7 @@
   :config
   (modern-c++-font-lock-global-mode t)
   )
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; C++ keys
@@ -939,17 +978,22 @@
     )
   )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; C++ Cmake utils
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package cpputils-cmake
   :if (executable-find "cmake")
   :ensure t
   :config
-  ;; TODO -- Configure this further
+  ;;TODO -- Configure this further
   )
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; We want to be able to see if there is a tab character vs a space.
 ;; global-whitespace-mode allows us to do just that.
 ;; Set whitespace mode to only show tabs, not newlines/spaces.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package whitespace
   :ensure t
   :init
@@ -963,8 +1007,6 @@
   (global-whitespace-mode t)
   )
 
-;; Enable hide/show of code blocks
-(add-hook 'c-mode-common-hook 'hs-minor-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Set up code completion with company
@@ -1014,6 +1056,7 @@
 		      (t (:inherit company-tooltip-selection))))))
   )
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Company Tern backend
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1030,6 +1073,7 @@
         ("M-." . nil)
         ("M-," . nil)))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Indium setup
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1037,22 +1081,6 @@
   :ensure t
 )
 
-
-;; Setup loading company-jedi for python completion
-;; This requines running jedi:install-server the first time
-;; (use-package company-jedi
-;;   :ensure t
-;;   :after python
-;;   :init
-;;   (defun my/python-mode-hook ()
-;;     (add-to-list 'company-backends 'company-jedi))
-;;   (add-hook 'python-mode-hook 'my/python-mode-hook)
-;;   :hook
-;;   (python-mode . jedi:setup)
-;;   ;; :custom
-;;   ;; (jedi:setup-keys t)
-;;   ;; (jedi:complete-on-dot t)
-;;   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Configure flycheck
@@ -1073,10 +1101,18 @@
   (when (not (display-graphic-p))
     (setq flycheck-indication-mode nil))
   )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Configure flycheck
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package flycheck-pyflakes
   :ensure t
   :after python)
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Google inline translate
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package google-translate
   :ensure t
   :bind
@@ -1130,6 +1166,7 @@
     )
   )
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; web-mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1144,6 +1181,7 @@
          ("\\.djhtml\\'" . web-mode)
          ("\\.html?\\'" . web-mode))
   )
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Elisp config 
@@ -1164,6 +1202,7 @@
   :bind (("M-." . xref-find-definitions))
   :interpreter (("emacs" . emacs-lisp-mode)))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; autopair
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1176,6 +1215,7 @@
     (declare-function autopair-global-mode "autopair.el"))
   :config
   (autopair-global-mode t))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; paredit
@@ -1202,6 +1242,7 @@
   (global-hungry-delete-mode t)
   )
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Syntax Highlighting in CUDA
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1210,6 +1251,7 @@
   :ensure t
   :mode (("\\.cu\\'" . cuda-mode)
          ("\\.cuh\\'" . cuda-mode)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Flyspell Mode for Spelling Corrections
@@ -1243,6 +1285,7 @@
   :ensure t
   :after flyspell)
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Magit
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1258,10 +1301,7 @@
   (add-hook 'magit-mode-hook (lambda () (setq whitespace-mode -1)))
   (setq magit-completing-read-function 'ivy-completing-read)
   )
-(use-package magit-gerrit
-  :ensure t
-  :after magit
-  )
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; GitGutter
@@ -1282,6 +1322,7 @@
   ;; Set the foreground color of modified lines to something obvious
   (set-face-foreground 'git-gutter:modified "purple")
   )
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; cmake-mode
@@ -1319,12 +1360,14 @@
       )
   )
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; yaml-mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package yaml-mode
   :ensure t
   :mode (".yml" ".yaml"))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; json-mode
@@ -1333,10 +1376,10 @@
   :ensure t
   :mode (".json" ".imp"))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; js2-mode and additions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (use-package js2-mode
   :ensure t
   :mode ("\\.js\\'" . js2-mode)
@@ -1403,6 +1446,7 @@
 (use-package asm-mode
   :mode ("\\.s\\'"))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Use markdown-mode for markdown files
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1419,10 +1463,10 @@
        " --from=markdown --to=html"
        " --standalone --mathjax --highlight-style=pygments")))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; LSP Mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (use-package lsp-mode
   :ensure t
   :commands lsp
@@ -1443,6 +1487,7 @@
 ;    :config
 ;    (add-hook 'lsp-mode-hook 'lsp-ui-mode))
   )
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; auctex
@@ -1465,8 +1510,7 @@
   (LaTeX-mode . TeX-source-correlate-mode)
   (LaTeX-mode . turn-on-reftex)
   (LaTeX-mode . auto-fill-mode)
-  )
-  
+  )  
 
 
 ;; Remove function from mode bar
@@ -1633,4 +1677,4 @@
  '(git-gutter:update-interval 5)
  '(package-selected-packages
    (quote
-    (define-word mu4e-alert mu4e dired-rainbow pyenv-mode-auto pyenv-mode slime-company org-plus-contrib zzz-to-char yasnippet-snippets yapfify yaml-mode xref-js2 writegood-mode window-numbering which-key wgrep web-mode vlf use-package tree-mode string-inflection slime request-deferred realgud rainbow-delimiters powerline paredit origami org-bullets modern-cpp-font-lock markdown-mode magit-gerrit json-mode indium hungry-delete google-translate google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy ein edit-server cuda-mode cpputils-cmake counsel-etags company-tern company-lsp cmake-font-lock clang-format bui beacon autopair auto-package-update auctex 0blayout))))
+    (ensime define-word mu4e-alert mu4e dired-rainbow pyenv-mode-auto pyenv-mode slime-company org-plus-contrib zzz-to-char yasnippet-snippets yapfify yaml-mode xref-js2 writegood-mode window-numbering which-key wgrep web-mode vlf use-package tree-mode string-inflection slime request-deferred realgud rainbow-delimiters powerline paredit origami org-bullets modern-cpp-font-lock markdown-mode json-mode indium hungry-delete google-translate google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy ein edit-server cuda-mode cpputils-cmake counsel-etags company-tern company-lsp cmake-font-lock clang-format bui beacon autopair auto-package-update auctex 0blayout))))
