@@ -9,6 +9,6 @@ method.insert = d.get_data_full_path, simple, "branch=((d.is_multi_file)),((cat,
 # may also use relative paths if you want different session
 # directories depending on where you execute rtorrent.
 
-schedule = watch_directory_tor, 5, 10, "load_start=~/tor/jundi/*.torrent,d.set_custom1=/home/phetus/tor"
+schedule = watch_directory_tor, 5, 10, "load.start=~/tor/jundi/*.torrent,d.set_custom1=/home/phetus/tor"
 # gets the full path of data of a torrent (it's a workaround for the possibly empty 'd.base_path' attribute)
-method.set_key = event.download.finished,move_complete,"execute=mv,-u,$d.get_data_full_path=,~/tor/; d.directory.set=~/tor/"
+method.set_key = event.download.finished,move_complete,"execute2=mv,-u,$d.get_data_full_path=,~/tor/; d.directory.set=~/tor/"
