@@ -8,3 +8,8 @@
 [credential]
 	helper = cache --timeout=3600
 	helper = cache --timeout=3600
+[alias]
+	unstage = reset --
+    ia = !git add $(git ls-files --modified --others --exclude-standard | fzf -m)
+	is = !git show $(git log --pretty=oneline | fzf | cut -d' ' -f1)
+	pbase = !git rebase -i $(git log --pretty=oneline | fzf | cut -d' ' -f1)
