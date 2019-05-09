@@ -1,0 +1,86 @@
+"set nohud
+"set nosmoothscroll
+set noautofocus " The opposite of autofocus; this setting stops
+                " sites from focusing on an input box when they load
+set typelinkhints
+let searchlimit = 30
+let scrollstep = 70
+
+let searchengine hoogle = "https://hoogle.haskell.org/?hoogle=%s" " If you leave out the '%s' at the end of the URL,
+                                                                    " your query will be appended to the link.
+                                                                    " Otherwise, your query will replace the '%s'.
+
+command g tabnew google
+
+let completionengines = ["google", "amazon", "imdb", "hoogle"]
+
+let searchalias g = "google" " Create a shortcut for search engines.
+                             " For example, typing ':tabnew g example'
+                             " would act the same way as ':tabnew google example'
+
+" Open all of these in a tab with `gnb` or open one of these with <N>goa where <N>
+let qmark a = ["http://www.reddit.com", "http://www.google.com", "http://twitter.com"]
+
+let blacklists = ["https://mail.google.com/*", "*://mail.google.com/*", "@https://mail.google.com/mail/*"]
+" blacklists prefixed by '@' act as a whitelist
+
+let mapleader = ","
+
+unmap h j k l s b
+
+" Mappings
+
+map <Leader>r reloadTabUncached
+map <Leader>x :restore<Space>
+
+" This remaps the default 'j' mapping
+map n scrollUp
+map t scrollDown
+"map  scrollPageDown
+"map <S-n> scrollPageUp
+
+map h goBack
+map s goForward 
+
+map H previousTab
+map S nextTab
+
+map d quit
+
+" You can use <Space>, which is interpreted as a
+" literal " " character, to enter buffer completion mode
+map gb :buffer<Space>
+
+
+
+" This remaps the default 'f' mapping to the current 'F' mapping
+"map f F
+
+" Toggle the current HUD display value
+map <C-h> :set hud!<CR>
+
+" Switch between alphabetical hint characters and numeric hints
+map <C-i> :set numerichints!<CR>
+
+map <C-u> rootFrame
+
+iunmap <C-y>
+imap <C-m> deleteWord
+
+" Use paste buffer in mappings
+map T :tabnew wikipedia @"<CR>
+
+" Code blocks (see below for more info)
+getIP() -> {{
+httpRequest({url: 'http://api.ipify.org/?format=json', json: true},
+            function(res) { Status.setMessage('IP: ' + res.ip); });
+}}
+" Displays your public IP address in the status bar
+map ci :call getIP<CR>
+
+" Script hints
+echo(link) -> {{
+  alert(link.href);
+}}
+map <C-f> createScriptHint(echo)
+
