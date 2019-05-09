@@ -59,12 +59,7 @@ call vundle#begin()
 	Plugin 'derekwyatt/vim-scala'
 	Plugin 'vhdirk/vim-cmake'
 	Plugin 'skywind3000/asyncrun.vim'
-
-	Plugin 'autozimu/LanguageClient-neovim', {
-				\ 'branch': 'next',
-				\ 'do': './install.sh'
-				\ }
-
+	Plugin 'autozimu/LanguageClient-neovim'
 	"Vim Functionality
 	Plugin 'ctrlpvim/ctrlp.vim'
 	Plugin 'ensime/ensime-vim'
