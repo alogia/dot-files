@@ -13,3 +13,4 @@
     ia = !git add $(git ls-files --modified --others --exclude-standard | fzf -m)
 	is = !git show $(git log --pretty=oneline | fzf | cut -d' ' -f1)
 	pbase = !git rebase -i $(git log --pretty=oneline | fzf | cut -d' ' -f1)
+	fiz = !git commit --fixup $(git log --pretty=oneline | fzf | cut -d' ' -f1)
