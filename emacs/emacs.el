@@ -161,9 +161,9 @@
 (if (functionp 'tool-bar-mode) (tool-bar-mode -1))
 ;; Disable the menu bar since we don't use it, especially not in the terminal
 (menu-bar-mode -1)
-;; Auto-wrap at 80 characters
+;; Auto-wrap characters
 (setq-default auto-fill-function 'do-auto-fill)
-(setq-default fill-column 80)
+(setq-default fill-column 100)
 ;; Non-nil means draw block cursor as wide as the glyph under it.
 (setq x-stretch-cursor t)
 ;; Don't ask to follow symlink in git
@@ -209,6 +209,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;     General Functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(defun switch-to-previous-buffer ()
+  "Switch to previously open buffer.
+Repeated invocations toggle between the two most recently open buffers."
+  (interactive)
+  (switch-to-buffer (other-buffer (current-buffer) 1)))
+
 
 (defun org-open-main ()
     "Opens the default org file from any buffer."
@@ -334,6 +342,7 @@
  ("M-c"     . avy-goto-char)
  ("M-r"     . avy-goto-word-1)
  ("S-SPC"   . set-mark-command)
+ ("M-<tab>" . switch-to-previous-buffer)
  ("C-e"     . mark-sexp)
  ("<f5>"    . toggle-truncate-lines)
  ("<f6>"    . linum-mode)
@@ -354,7 +363,7 @@
 (global-set-key (kbd "C-c v") 'visual-line-mode)
 (global-set-key (kbd "C-c i") 'ielm)
 (global-set-key (kbd "M-.")  'xref-find-definitions)
-
+(global-set-key (kbd "C-c .") 'org-time-stamp)
 ;; Unbind C-z from suspend-frame
 (global-unset-key (kbd "C-z"))
 
@@ -876,6 +885,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package pyenv-mode
   :ensure t
+  :init
+  (add-to-list 'exec-path "~/.pyenv/shims")
+  (add-to-list 'exec-path "~/.local/bin")
+  (setenv "WORKON_HOME" "~/.pyenv/versions/")
+   :bind
+  ("C-x p e" . pyenv-activate-current-project)
   :config
   (use-package pyenv-mode-auto
     :ensure t)
