@@ -23,12 +23,16 @@ antigen apply
 ############################################
 #				EXPORTS
 ############################################
-source $HOME/.zsh_exports 
+source $HOME/.config/zsh/exports 
 
+############################################
+#				ALIASES	
+############################################
+source $HOME/.config/zsh/alias
 ############################################
 #			  KEY BINDINGS   
 ############################################
-source $HOME/.keybindings
+source $HOME/.config/zsh/keybindings
 
 ############################################
 #			 	TWEEKS 

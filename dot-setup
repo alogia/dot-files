@@ -27,8 +27,9 @@ case $arg in
 		;;
 	zsh)
 		try_link zsh/zshrc.sh .zshrc
-		try_link zsh/keybindings.sh .keybindings
-		try_link zsh/zsh_exports.sh .zsh_exports
+		try_link zsh/keybindings.sh .config/zsh/keybindings
+		try_link zsh/exports.sh .config/zsh/exports
+		try_link zsh/alias.sh .config/zsh/alias
 		try_link zsh/zsh-dircolors.config .zsh-dircolors.config
 		;;
 	emacs)
@@ -81,7 +82,13 @@ case $arg in
 		;;
 	vifm)
 	    try_link etc/vifmrc .vifm/vifmrc
-            	;;
+		;;
+	chromium)
+		try_link chromium/cvimrc .config/cvim/cvimrc
+		;;
+	firefox)
+		try_link firefox/tridactylrc .config/tridactyl/tridactylrc
+		;;
 	*)
 		raise_error
 		print_usage
