@@ -3,6 +3,7 @@
 	email = alogia@gmail.com
 [core]
 	editor = vim
+	pager = diff-so-fancy | less --tabs=1,5 -R
 [push]
 	default = simple
 [credential]
@@ -14,3 +15,17 @@
 	is = !git show $(git log --pretty=oneline | fzf | cut -d' ' -f1)
 	pbase = !git rebase -i $(git log --pretty=oneline | fzf | cut -d' ' -f1)
 	fiz = !git commit --fixup $(git log --pretty=oneline | fzf | cut -d' ' -f1)
+[color]
+	ui = true
+[color "diff-highlight"]
+	oldNormal 		= red bold
+	oldHighlight 	= red bold 52
+	newNormal 		= green bold
+	newHighlight 	= green bold 22
+[color "diff"]
+	meta 		= yellow
+	frag 		= magenta bold
+	commit 		= yellow bold
+	old 		= red bold
+	new 		= green bold
+	whitespace 	= red reverse
