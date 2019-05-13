@@ -36,6 +36,7 @@ case $arg in
 		try_link emacs/emacs.el .emacs.el
 		try_link emacs/sbclrc .sbclrc
 		try_link emacs/eshell/alias .emacs.d/eshell/alias
+		try_link emacs/emacsclient.desktop .local/share/applications/emacsclient.desktop
 		try_link emacs/eshell/commands.el .emacs.d/eshell/commands.el
                 try_link etc/aspell.en.prepl .aspell.en.prepl
                 try_link etc/aspell.en.pws .aspell.en.pws
