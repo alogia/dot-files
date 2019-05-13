@@ -15,7 +15,6 @@ filetype plugin indent on
 let mapleader = "," 
 set background=dark
 
-"jkhh
 "====================================================
 "                  DVORAK KEYMODS
 "====================================================
@@ -60,6 +59,7 @@ call vundle#begin()
 	Plugin 'vhdirk/vim-cmake'
 	Plugin 'skywind3000/asyncrun.vim'
 	Plugin 'autozimu/LanguageClient-neovim'
+	
 	"Vim Functionality
 	Plugin 'ctrlpvim/ctrlp.vim'
 	Plugin 'ensime/ensime-vim'
@@ -68,7 +68,7 @@ call vundle#begin()
 	Plugin 'scrooloose/nerdtree'
 	Plugin 'Xuyuanp/nerdtree-git-plugin'
 	Plugin 'haya14busa/incsearch.vim'
-
+	Plugin 'tpope/vim-obsession'
 
 	"Web Dev
 	Plugin 'othree/html5.vim'
