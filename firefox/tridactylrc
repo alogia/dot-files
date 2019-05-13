@@ -27,6 +27,8 @@ bind ^ buffer #
 bind t fillcmdline tab 
 bind T fillcmdline tabopen 
 
+bind j findnext 1
+
 " Rebind command mode
 unbind :
 bind - fillcmdline_notrail
