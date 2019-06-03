@@ -12,22 +12,28 @@
 " Binds
 "
 set allowautofocus false
+set smoothscroll true
+" set scrollduration 10
 colors dark
 
 bind h back
 bind s forward
 
-bind n hint
-bind N hint -b
+bind j hint
+bind J hint -b
 
 bind H tabprev
 bind S tabnext
 
 bind ^ buffer #
-bind t fillcmdline tab 
-bind T fillcmdline tabopen 
+bind e fillcmdline tab 
+bind E fillcmdline tabopen 
 
-bind j findnext 1
+bind t scrollline 3
+bind T scrollline 15
+bind n scrollline -3
+bind N scrollline -15
+
 
 " Rebind command mode
 unbind :
@@ -53,8 +59,8 @@ bind yg composite js "git clone " + document.location.href.replace(/https?:\/\//
 bindurl reddit.com gu urlparent 4
 
 " Only hint search results on Google
-bindurl www.google.com n hint -Jc .rc > .r > a
-bindurl www.google.com N hint -Jtc .rc>.r>a
+bindurl www.google.com j hint -Jc .rc > .r > a
+" bindurl www.google.com J hint -Jtc .rc>.r>a
 
 " Allow Ctrl-a to select all in the commandline
 unbind --mode=ex <C-a>
@@ -79,16 +85,17 @@ set csp clobber
 fixamo_quiet
 
 " Make quickmarks for the sane Tridactyl issue view
-quickmark t https://github.com/tridactyl/tridactyl/issues?utf8=%E2%9C%93&q=sort%3Aupdated-desc+
+quickmark j https://github.com/tridactyl/tridactyl/issues?utf8=%E2%9C%93&q=sort%3Aupdated-desc+
 
 "
 " URL redirects
-" 
-
 " New reddit is bad
 autocmd DocStart ^http(s?)://www.reddit.com js tri.excmds.urlmodify("-t", "www", "old")
 " Mosquito nets won't make themselves
 autocmd DocStart ^http(s?)://www.amazon.com js tri.excmds.urlmodify("-t", "www", "smile")
+
+" Turn off on Gmail
+autocmd DocStart ^https://mail.google.com mode ignore
 
 " This will have to do until someone writes us a nice syntax file :)
 " vim: set filetype=vim:
