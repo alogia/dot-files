@@ -11,9 +11,16 @@ export QT_QPA_PLATFORM=wayland-egl
 export CLUTTER_BACKEND=wayland
 export SDL_VIDEODRIVER=wayland
 
-#FZF setup options
-export FZF_CTRL_T_OPTS="--preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'"
-export FZF_DEFAULT_OPTS='--bind=alt-n:up,alt-t:down'
+##########################
+#    FZF setup options
+##########################
 export FZFZ_EXCLUDE_PATTERN='\.(git|cache|stack|mozilla)|node_modules'
+export FZF_DEFAULT_COMMAND="fd . $HOME -H"
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND="fd -t d . $HOME -H"
+
+export FZF_CTRL_T_OPTS="--preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'"
+export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
+export FZF_DEFAULT_OPTS='--bind=alt-n:up,alt-t:down'
 
 export MOZ_ENABLE_WAYLAND=1

@@ -1,0 +1,13 @@
+.vim
+.emacs.d
+.mozilla
+.stack
+.cache
+.git
+.gem
+.npm
+.thumbnails
+.quicklisp
+.openoffice
+.dbus
+node_modules
