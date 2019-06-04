@@ -26,70 +26,71 @@ case $arg in
                 try_link etc/aspell.en.pws .vim/spell/en.utf-8.add
 		;;
 	zsh)
-		try_link zsh/zshrc.sh .zshrc
-		try_link zsh/keybindings.sh .config/zsh/keybindings
-		try_link zsh/exports.sh .config/zsh/exports
-		try_link zsh/alias.sh .config/zsh/alias
-		try_link zsh/zsh-dircolors.config .zsh-dircolors.config
-		try_link zsh/fdignore .fdignore
+		try_link zsh/zshrc.sh 				.zshrc
+		try_link zsh/keybindings.sh 		.config/zsh/keybindings
+		try_link zsh/exports.sh 			.config/zsh/exports
+		try_link zsh/alias.sh 				.config/zsh/alias
+		try_link zsh/fzf.sh 				.config/zsh/fzf
+		try_link zsh/zsh-dircolors.config 	.zsh-dircolors.config
+		try_link zsh/fdignore 				.fdignore
 		;;
 	emacs)
-		try_link emacs/emacs.el .emacs.el
-		try_link emacs/sbclrc .sbclrc
-		try_link emacs/eshell/alias .emacs.d/eshell/alias
-		try_link emacs/emacsclient.desktop .local/share/applications/emacsclient.desktop
-		try_link emacs/eshell/commands.el .emacs.d/eshell/commands.el
-                try_link etc/aspell.en.prepl .aspell.en.prepl
-                try_link etc/aspell.en.pws .aspell.en.pws
+		try_link emacs/emacs.el 			.emacs.el
+		try_link emacs/sbclrc 				.sbclrc
+		try_link emacs/eshell/alias 		.emacs.d/eshell/alias
+		try_link emacs/emacsclient.desktop	.local/share/applications/emacsclient.desktop
+		try_link emacs/eshell/commands.el 	.emacs.d/eshell/commands.el
+        try_link etc/aspell.en.prepl	 	.aspell.en.prepl
+        try_link etc/aspell.en.pws 			.aspell.en.pws
 		;;
 	screen)
-		try_link etc/screenrc .screenrc
+		try_link etc/screenrc 		.screenrc
 		;;
 	bash)
-		try_link bash/bash_profile.sh .bash_profile
-		try_link bash/bashrc.sh .bashrc
-		try_link bash/bash_aliases.sh .bash_aliases
+		try_link bash/bash_profile.sh 	.bash_profile
+		try_link bash/bashrc.sh 		.bashrc
+		try_link bash/bash_aliases.sh 	.bash_aliases
 		;;
 	xorg)
-		try_link xorg/xinitrc .xinitrc
-		try_link xorg/Xresources .Xresources
+		try_link xorg/xinitrc 			.xinitrc
+		try_link xorg/Xresources 		.Xresources
 		;;
 	sway)
-		try_link wayland/Xdefaults .Xdefaults
-		try_link wayland/sway.config .config/sway/config
-		try_link wayland/swaybar .config/sway/swaybar
+		try_link wayland/Xdefaults 		.Xdefaults
+		try_link wayland/sway.config 	.config/sway/config
+		try_link wayland/swaybar 		.config/sway/swaybar
 		try_link wayland/termite.config .config/termite/config
 		;;
 	termite)
 		try_link wayland/termite.config .config/termite/config
 		;;
 	tmux)
-		try_link tmux/tmux.conf .tmux.conf
+		try_link tmux/tmux.conf 		.tmux.conf
 		;;
 	xmonad)
-		try_link xmonad/xmonad.hs .xmonad/xmonad.hs
+		try_link xmonad/xmonad.hs 		.xmonad/xmonad.hs
 		;;
 	git)
-		try_link etc/gitconfig .gitconfig
+		try_link etc/gitconfig 			.gitconfig
 		;;
 	rtorrent)
-		try_link etc/rtorrent.rc .rtorrent.rc
+		try_link etc/rtorrent.rc 		.rtorrent.rc
 		;;
-        imap)
-            try_link mail/offlineimaprc .offlineimaprc
-            try_link mail/offlineimap.py .offlineimap.py
-            ;;
+	imap)
+		try_link mail/offlineimaprc 	.offlineimaprc
+		try_link mail/offlineimap.py 	.offlineimap.py
+		;;
 	ycmd)
-		try_link etc/ycm_extra_conf.py .ycm_extra_conf.py
+		try_link etc/ycm_extra_conf.py 	.ycm_extra_conf.py
 		;;
 	vifm)
-	    try_link etc/vifmrc .vifm/vifmrc
+	    try_link etc/vifmrc 			.vifm/vifmrc
 		;;
 	chromium)
-		try_link chromium/cvimrc .config/cvim/cvimrc
+		try_link chromium/cvimrc 		.config/cvim/cvimrc
 		;;
 	firefox)
-		try_link firefox/tridactylrc .config/tridactyl/tridactylrc
+		try_link firefox/tridactylrc 	.config/tridactyl/tridactylrc
 		;;
 	*)
 		raise_error

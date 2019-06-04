@@ -44,6 +44,4 @@ unsetopt autopushd
 ############################################
 #Set up fzf
 ############################################
-source /usr/share/fzf/completion.zsh
-source /usr/share/fzf/key-bindings.zsh
-source /usr/share/fzf/fzf-extras.zsh
+source $HOME/.config/zsh/fzf
