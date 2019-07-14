@@ -6,6 +6,8 @@
 (defvar my:compiled-init nil)
 ;;; Define the commands which will be run in an ansi-term instead of eshell
 (defvar my:eshell-visual-commands '("ssh" "tail" "htop" "tmux" "vim"))
+;;; Define default browser to used
+(defvar my:browser "/home/phetus/devel/bin/ff")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Org Mode setup
@@ -163,7 +165,7 @@
 (menu-bar-mode -1)
 ;; Auto-wrap characters
 (setq-default auto-fill-function 'do-auto-fill)
-(setq-default fill-column 100)
+(setq-default fill-column 80) 
 ;; Non-nil means draw block cursor as wide as the glyph under it.
 (setq x-stretch-cursor t)
 ;; Don't ask to follow symlink in git
@@ -173,6 +175,9 @@
 (turn-on-auto-fill)
 ;; set 'term default shell
 (setq-default explicit-shell-file-name "/usr/bin/zsh")
+;; Setup Browser
+(setq browse-url-browser-function 'browse-url-generic)
+(setq browse-url-generic-program  my:browser)
 
 
 
@@ -352,6 +357,8 @@ Repeated invocations toggle between the two most recently open buffers."
  ("C-c a"   . org-agenda)
  ("C-c c"   . org-capture)
  ("C-c o"   . org-open-main)
+ ("C-c u"   . upcase-word)
+ ("M-u"     . capitalize-word)
  ("C-/"     . undo)
  ("C-x M-f" . project-find-file)
  ("C-x C-x" . kill-buffer-and-window)
@@ -692,13 +699,13 @@ Repeated invocations toggle between the two most recently open buffers."
   :ensure t
   :commands (origami-mode)
   :bind (:map origami-mode-map
-              ("C-c o :" . origami-recursively-toggle-node)
-              ("C-c o a" . origami-toggle-all-nodes)
-              ("C-c o t" . origami-toggle-node)
-              ("C-c o o" . origami-show-only-node)
-              ("C-c o u" . origami-undo)
-              ("C-c o U" . origami-redo)
-              ("C-c o C-r" . origami-reset)
+              ("C-c C-o :" . origami-recursively-toggle-node)
+              ("C-c C-o a" . origami-toggle-all-nodes)
+              ("C-c C-o t" . origami-toggle-node)
+              ("C-c C-o o" . origami-show-only-node)
+              ("C-c C-o u" . origami-undo)
+              ("C-c C-o U" . origami-redo)
+              ("C-c C-o C-r" . origami-reset)
               )
   :config
   (setq origami-show-fold-header t)
@@ -729,11 +736,15 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package mu4e
   ;; This package should be installed with AUR mu program
   ;; There is no Melpa package under this name, so don't :ensure it.
+  :hook
+  ;; Add keybinding to view message in the default external browser
+  (mu4e-mode . (add-to-list ‘mu4e-view-actions
+                           ‘(“ViewInBrowser” . mu4e-action-view-in-browser) t))
   :custom
   (mu4e-maildir (expand-file-name "~/Maildir"))
   (mu4e-drafts-folder "/Drafts")
   (mu4e-sent-folder   "/Sent Mail")
-  (mu4e-trash-folder  "/Trash")
+  (mu4e-trash-folder  "/Trash") 
   ;; don't save message to Sent Messages, GMail/IMAP will take care of this
   (mu4e-sent-messages-behavior 'delete)
   ;; setup some handy shortcuts
@@ -744,12 +755,11 @@ Repeated invocations toggle between the two most recently open buffers."
   ;; allow for updating mail using 'U' in the main view:
   (mu4e-get-mail-command "offlineimap")
     (user-mail-address "alogia@gmail.com")
-  (user-full-name  "Tyler Thomas")
+  (user-full-name  "Tyler Kane Thomas")
    ;; message-signature
    ;;  (concat
-   ;;    "Foo X. Bar\n"
-   ;;    "http://www.example.com\n")    
-  ;;Must have the gnutls package installed
+   ;;    "Tyler Kane Thomas\n"
+   ;;    "https://alogia.io\n")    
   :config
   (use-package smtpmail
     :ensure t
@@ -765,7 +775,7 @@ Repeated invocations toggle between the two most recently open buffers."
   (use-package mu4e-alert
   :ensure t
   :custom
-  (mu4e-alert-interesting-mail-query  (concat
+  (mu4e-alert-interesting-mail-query (concat
        "flag:unread"
        " AND NOT flag:trashed"
        " AND NOT maildir:"
@@ -779,7 +789,12 @@ Repeated invocations toggle between the two most recently open buffers."
     (mu4e-alert-enable-mode-line-display)
     )
   (run-with-timer 0 60 'gjstein-refresh-mu4e-alert-mode-line)
-  ))
+  )
+  ;; (use-package mu4e-conversation
+  ;;   :ensure t
+  ;;   :config
+  ;;   (with-eval-after-load 'mu4e (require 'mu4e-conversation)))
+  )
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1210,12 +1225,15 @@ Repeated invocations toggle between the two most recently open buffers."
       :bind ("C-c e" . macrostep-expand))
     (use-package ert
       :config (add-to-list 'emacs-lisp-mode-hook 'ert--activate-font-lock-keywords)))
+  :custom
+  (tab-always-indent 'complete)
   :config
-  (progn
-    (setq tab-always-indent 'complete)
-    (add-to-list 'completion-styles 'initials t))
-  :bind (("M-." . xref-find-definitions))
-  :interpreter (("emacs" . emacs-lisp-mode)))
+  (add-to-list 'completion-styles 'initials t)
+  :bind
+  (("M-." . xref-find-definitions))
+  :interpreter
+  (("emacs" . emacs-lisp-mode))
+  )
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1692,4 +1710,4 @@ Repeated invocations toggle between the two most recently open buffers."
  '(git-gutter:update-interval 5)
  '(package-selected-packages
    (quote
-    (ensime define-word mu4e-alert mu4e dired-rainbow pyenv-mode-auto pyenv-mode slime-company org-plus-contrib zzz-to-char yasnippet-snippets yapfify yaml-mode xref-js2 writegood-mode window-numbering which-key wgrep web-mode vlf use-package tree-mode string-inflection slime request-deferred realgud rainbow-delimiters powerline paredit origami org-bullets modern-cpp-font-lock markdown-mode json-mode indium hungry-delete google-translate google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy ein edit-server cuda-mode cpputils-cmake counsel-etags company-tern company-lsp cmake-font-lock clang-format bui beacon autopair auto-package-update auctex 0blayout))))
+    (mu4e-conversation magit async ensime define-word mu4e-alert mu4e dired-rainbow pyenv-mode-auto pyenv-mode slime-company org-plus-contrib zzz-to-char yasnippet-snippets yapfify yaml-mode xref-js2 writegood-mode window-numbering which-key wgrep web-mode vlf use-package tree-mode string-inflection slime request-deferred realgud rainbow-delimiters powerline paredit origami org-bullets modern-cpp-font-lock markdown-mode json-mode indium hungry-delete google-translate google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy ein edit-server cuda-mode cpputils-cmake counsel-etags company-tern company-lsp cmake-font-lock clang-format bui beacon autopair auto-package-update auctex 0blayout))))
