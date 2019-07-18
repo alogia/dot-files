@@ -45,3 +45,4 @@ unsetopt autopushd
 #Set up fzf
 ############################################
 source $HOME/.config/zsh/fzf
+
