@@ -100,7 +100,7 @@ let g:ycm_extra_conf_globlist = ['~/devel/*','!~/*']
 let g:ycm_semantic_triggers = { 'cpp': [ 're!.' ] }
 "let g:ycm_use_clangd = 0
 
-"---------mHASKELL-------------
+"---------HASKELL-------------
 noremap <Leader>ht :GhcModType<cr>
 nnoremap <Leader>htc :GhcModTypeClear<cr>
 
@@ -120,3 +120,8 @@ let NERDTreeQuitOnOpen = 1
 let NERDTreeAutoDeleteBuffer = 1
 let NERDTreeMinimalUI = 1
 let NERDTreeDirArrows = 1
+
+"-----------Ale-----------------
+let g:ale_lint_on_save = 1
+let g:ale_lint_on_text_changed = 0
+
