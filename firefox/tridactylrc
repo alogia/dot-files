@@ -96,6 +96,9 @@ autocmd DocStart ^http(s?)://www.amazon.com js tri.excmds.urlmodify("-t", "www",
 
 " Turn off on Gmail
 autocmd DocStart ^https://mail.google.com mode ignore
+autocmd DocStart ^https://keep.google.com mode ignore
+autocmd DocStart ^https://photos.google.com mode ignore
+autocmd DocStart ^https://docs.google.com mode ignore
 
 " This will have to do until someone writes us a nice syntax file :)
 " vim: set filetype=vim:
