@@ -12,7 +12,7 @@ date_formatted=$(date "+%a %F %H:%M")
 battery_status=$(cat /sys/class/power_supply/BAT0/status)
 battery_percentage=$(acpi | cut -d',' -f2)
 
-ssid=$(iw wlp58s0 info | grep ssid | cut -d' ' -f2)
+ssid=$(iw wlp58s0 info | grep ssid | sed 's/ssid //')
 
 
 # Get volume information for the Master channel. 
