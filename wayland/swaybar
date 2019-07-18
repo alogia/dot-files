@@ -15,6 +15,21 @@ battery_percentage=$(acpi | cut -d',' -f2)
 ssid=$(iw wlp58s0 info | grep ssid | cut -d' ' -f2)
 
 
+# Get volume information for the Master channel. 
+master_right=$(amixer sget Master | grep 'Right:' | awk -F'[][]' '{ print $2 " (" $4 ")" }')
+master_left=$(amixer sget Master | grep 'Left:' |   awk -F'[][]' '{ print $2 " (" $4 ")" }')
+master='!!!'
+
+# If both channel are the same, only display one.
+if [[ "$master_left" == "$master_right" ]]; then
+	master="$master_left"
+else
+	master="$master_left\|$master_right"
+fi	
+
+
+# If there is no ssid, replace the string with disconnected.
+# If there is a tunnel interface running, bracket the ssid. 
 if [ -z ${ssid} ]; then
     ssid="*disconnected*"
 else 
@@ -25,4 +40,4 @@ else
 	ssid+=" - $signal_strength"
 fi
     
-echo $uptime_formatted '||' $ssid '||' $battery_status $battery_percentage '||' $date_formatted
+echo $uptime_formatted '||' $ssid '||' $battery_status $battery_percentage '||' $master '||' $date_formatted
