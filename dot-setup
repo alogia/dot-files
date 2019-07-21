@@ -11,7 +11,7 @@ function print_usage {
 
 function try_link { 
 	if [ ! -f ~/$2 ]; then
-		mkdir -p $(dirname $2)
+		mkdir -p ~/$(dirname $2)
 		ln -v -s `pwd`/$1 ~/$2
 	else 
 		echo "File ${2} already exists: skipping..."
