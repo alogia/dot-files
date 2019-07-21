@@ -1,25 +1,38 @@
 ###########################################
 # 			ANTIGEN SETUP
 ###########################################
-source /usr/share/zsh/share/antigen.zsh
-antigen use oh-my-zsh
+ANTIGEN=0
+if [ -f /usr/share/zsh/share/antigen.sh ]; then 
+	source /usr/share/zsh/share/antigen.sh 
+	ANTIGEN=1
+elif [ -f /usr/local/share/zsh-antigen/antigen.zsh ]; then
+	source /usr/local/share/zsh-antigen/antigen.zsh
+	ANTIGEN=1
+else
+	echo "ERROR: Cannot find antigen file."
+fi
 
-# Bundles from the default repo (robbyrussell's oh-my-zsh).
-antigen bundle git
-antigen bundle screen
-antigen bundle bundler
-antigen bundle tmux
-antigen bundle z
+if (( $ANTIGEN == 1 )); then
+	antigen use oh-my-zsh
 
-antigen bundle zsh-users/zsh-syntax-highlighting
-antigen bundle zsh-users/zsh-history-substring-search
-antigen bundle joel-porquet/zsh-dircolors-solarized.git
-antigen bundle andrewferrier/fzf-z
+	# Bundles from the default repo (robbyrussell's oh-my-zsh).
+	antigen bundle git
+	antigen bundle screen
+	antigen bundle bundler
+	antigen bundle tmux
+	antigen bundle z
+
+	antigen bundle zsh-users/zsh-syntax-highlighting
+	antigen bundle zsh-users/zsh-history-substring-search
+	if command -v dircolors; then
+		antigen bundle joel-porquet/zsh-dircolors-solarized.git
+	fi
+	antigen bundle andrewferrier/fzf-z
 
 
-antigen theme af-magic
-antigen apply
-
+	antigen theme af-magic
+	antigen apply
+fi
 ############################################
 #				EXPORTS
 ############################################

@@ -3,9 +3,15 @@
 ##########################
 
 ## Source all system setup files
-source /usr/share/fzf/completion.zsh
-source /usr/share/fzf/key-bindings.zsh
-source /usr/share/fzf/fzf-extras.zsh
+if [ -d /usr/share/fzf ]; then
+	source /usr/share/fzf/completion.zsh
+	source /usr/share/fzf/key-bindings.zsh
+elif [ -d /usr/local/share/examples/fzf/shell ]; then
+	source /usr/local/share/examples/fzf/shell/completion.zsh
+	source /usr/local/share/examples/fzf/shell/key-bindings.zsh
+else
+	echo "ERROR: Cannot find fzf init files: Aborting...."
+fi
 
 ## Exclude pattern for ag. Fd commands use the ~/.fdignore file. 
 export FZFZ_EXCLUDE_PATTERN='\.(git|cache|stack|mozilla)|node_modules'
