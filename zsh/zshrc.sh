@@ -2,8 +2,8 @@
 # 			ANTIGEN SETUP
 ###########################################
 ANTIGEN=0
-if [ -f /usr/share/zsh/share/antigen.sh ]; then 
-	source /usr/share/zsh/share/antigen.sh 
+if [ -f /usr/share/zsh/share/antigen.zsh ]; then 
+	source /usr/share/zsh/share/antigen.zsh 
 	ANTIGEN=1
 elif [ -f /usr/local/share/zsh-antigen/antigen.zsh ]; then
 	source /usr/local/share/zsh-antigen/antigen.zsh
@@ -24,7 +24,7 @@ if (( $ANTIGEN == 1 )); then
 
 	antigen bundle zsh-users/zsh-syntax-highlighting
 	antigen bundle zsh-users/zsh-history-substring-search
-	if command -v dircolors; then
+	if command -v dircolors &> /dev/null; then
 		antigen bundle joel-porquet/zsh-dircolors-solarized.git
 	fi
 	antigen bundle andrewferrier/fzf-z
