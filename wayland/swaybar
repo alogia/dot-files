@@ -24,7 +24,7 @@ master='!!!'
 if [[ "$master_left" == "$master_right" ]]; then
 	master="$master_left"
 else
-	master="$master_left\|$master_right"
+	master="L:$master_left R:$master_right"
 fi	
 
 
