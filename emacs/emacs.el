@@ -28,6 +28,7 @@
        ("master.org"   .  (:maxlevel . 9)) ;; A places for all the rest
        ("bookmarks.org" . (:maxlevel . 3)) ;; Bookmarks from web
        ))
+
 ;;Defines capture templates
 (setq org-capture-templates
       `(
@@ -36,8 +37,8 @@
          "* %?%^G\n  :PROPERTIES:\n  :ENTERED_ON: %T\n  :END:\n%i\n")
         ("i" "Ideas" entry (file ,(concat my:org-dir "ideas.org"))
          "* %?%^G\n  :PROPERTIES:\n  :ENTERED_ON: %T\n  :END:\n%i\n" :empty-lines 1)
-        ("t" "Todo" entry (file ,(concat my:org-dir "tasks.org"))
-         "* %?%^G\n  :PROPERTIES:\n  :ENTERED_ON: %T\n  :END:\n%i\n")
+        ("t" "Todo" entry (file+headline "tasks.org" "Tasks")
+         "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n%a\n")
         ("p" "Projects" entry (file ,(concat my:org-dir "projects.org"))
          "* %?%^G\n  :PROPERTIES:\n  :ENTERED_ON: %T\n  :END:\n%i\n")
         ("b" "Bookmarks" entry (file ,(concat my:org-dir "bookmarks.org"))
@@ -751,10 +752,15 @@ Repeated invocations toggle between the two most recently open buffers."
   (mu4e-maildir-shortcuts
         '(("/INBOX"     . ?i)
           ("/Sent Mail" . ?s)
+          ("/Drafts"    . ?d)
           ("/Trash"     . ?t)))
   ;; allow for updating mail using 'U' in the main view:
   (mu4e-get-mail-command "offlineimap")
-    (user-mail-address "alogia@gmail.com")
+  (user-mail-address "alogia@gmail.com")
+  ;; Close compose buffer on send
+  (message-kill-buffer-on-exit t)
+  ;; Remove emacs fill lines when sending
+  (mu4e-compose-format-flowed t)
   (user-full-name  "Tyler Kane Thomas")
    ;; message-signature
    ;;  (concat
@@ -767,15 +773,15 @@ Repeated invocations toggle between the two most recently open buffers."
     (message-send-mail-function 'smtpmail-send-it)
     (starttls-use-gnutls t)
     (smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil)))
-    (smtpmail-auth-credentials (expand-file-name "~/.authinfo.gpg"))
+    (smtpmail-auth-credentials (expand-file-name "~/.authinfo"))
     (smtpmail-default-smtp-server "smtp.gmail.com")
     (smtpmail-smtp-server "smtp.gmail.com")
     (smtpmail-smtp-service 587)
     (smtpmail-debug-info t))
   (use-package mu4e-alert
-  :ensure t
-  :custom
-  (mu4e-alert-interesting-mail-query (concat
+    :ensure t
+    :custom
+    (mu4e-alert-interesting-mail-query (concat
        "flag:unread"
        " AND NOT flag:trashed"
        " AND NOT maildir:"
@@ -790,6 +796,8 @@ Repeated invocations toggle between the two most recently open buffers."
     )
   (run-with-timer 0 60 'gjstein-refresh-mu4e-alert-mode-line)
   )
+  (require 'org-mu4e)
+  (setq org-mu4e-link-query-in-headers-mode nil)
   ;; (use-package mu4e-conversation
   ;;   :ensure t
   ;;   :config
@@ -802,11 +810,8 @@ Repeated invocations toggle between the two most recently open buffers."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package rainbow-delimiters
   :ensure t
-  :init
-  (eval-when-compile
-    ;; Silence missing function warnings
-    (declare-function rainbow-delimiters-mode "rainbow-delimiters.el"))
-  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+  :hook
+  (prog-mode . rainbow-delimiters-mode))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1536,9 +1541,105 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq-default TeX-auto-save t
                 TeX-parse-self t
                 TeX-source-correlate-start-server t
-                Tex-view-program-list '(("Evince" "evince --page-index=%(outpage) %o"))
-                TeX-view-program-selection '(output-pdf "Evince")
+                Tex-command-default "Latex"
                 reftex-plug-into-AUCTeX t)
+
+  (setq font-latex-match-reference-keywords
+        '(
+          ;; Custom
+          ("todo" "{")
+          ("finish" "{")
+          ("starbreak" "{")
+          ;; biblatex
+          ("printbibliography" "[{")
+          ("addbibresource" "[{")
+          ;; Standard commands
+          ;; ("cite" "[{")
+          ("Cite" "[{")
+          ("parencite" "[{")
+          ("Parencite" "[{")
+          ("footcite" "[{")
+          ("footcitetext" "[{")
+          ;; Style-specific commands
+          ("textcite" "[{")
+          ("Textcite" "[{")
+          ("smartcite" "[{")
+          ("Smartcite" "[{")
+          ("cite*" "[{")
+          ("parencite*" "[{")
+          ("supercite" "[{")
+          ;; Qualified citation lists
+          ("cites" "[{")
+          ("Cites" "[{")
+          ("parencites" "[{")
+          ("Parencites" "[{")
+          ("footcites" "[{")
+          ("footcitetexts" "[{")
+          ("smartcites" "[{")
+          ("Smartcites" "[{")
+          ("textcites" "[{")
+          ("Textcites" "[{")
+          ("supercites" "[{")
+          ;; Style-independent commands
+          ("autocite" "[{")
+          ("Autocite" "[{")
+          ("autocite*" "[{")
+          ("Autocite*" "[{")
+          ("autocites" "[{")
+          ("Autocites" "[{")
+          ;; My custom cite commands
+          ("posscite" "[{")
+          ("Posscite" "[{")
+          ("posscites" "[{")
+          ("Posscites" "[{")
+          ;; Text commands
+          ("citeauthor" "[{")
+          ("Citeauthor" "[{")
+          ("citetitle" "[{")
+          ("citetitle*" "[{")
+          ("citeyear" "[{")
+          ("citedate" "[{")
+          ("citeurl" "[{")
+          ;; Special commands
+          ("fullcite" "[{")
+          ;; cleveref
+          ("cref" "{")
+          ("Cref" "{")
+          ("cpageref" "{")
+          ("Cpageref" "{")
+          ("cpagerefrange" "{")
+          ("Cpagerefrange" "{")
+          ("crefrange" "{")
+          ("Crefrange" "{")
+          ("labelcref" "{")))
+
+  (setq font-latex-match-textual-keywords
+        '(
+          ;; biblatex brackets
+          ("parentext" "{")
+          ("brackettext" "{")
+          ("hybridblockquote" "[{")
+          ;; Auxiliary Commands
+          ("textelp" "{")
+          ("textelp*" "{")
+          ("textins" "{")
+          ("textins*" "{")
+          ;; subcaption
+          ("subcaption" "[{")))
+
+  (setq font-latex-match-variable-keywords
+        '(
+          ;; amsmath
+          ("numberwithin" "{")
+          ;; enumitem
+          ("setlist" "[{")
+          ("setlist*" "[{")
+          ("newlist" "{")
+          ("renewlist" "{")
+          ("setlistdepth" "{")
+          ("restartlist" "{")
+          ("crefname" "{")))
+
   :hook
   (LaTeX-mode . TeX-source-correlate-mode)
   (LaTeX-mode . turn-on-reftex)
@@ -1710,4 +1811,4 @@ Repeated invocations toggle between the two most recently open buffers."
  '(git-gutter:update-interval 5)
  '(package-selected-packages
    (quote
-    (mu4e-conversation magit async ensime define-word mu4e-alert mu4e dired-rainbow pyenv-mode-auto pyenv-mode slime-company org-plus-contrib zzz-to-char yasnippet-snippets yapfify yaml-mode xref-js2 writegood-mode window-numbering which-key wgrep web-mode vlf use-package tree-mode string-inflection slime request-deferred realgud rainbow-delimiters powerline paredit origami org-bullets modern-cpp-font-lock markdown-mode json-mode indium hungry-delete google-translate google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy ein edit-server cuda-mode cpputils-cmake counsel-etags company-tern company-lsp cmake-font-lock clang-format bui beacon autopair auto-package-update auctex 0blayout))))
+    (org-mu4e mu4e-conversation magit async ensime define-word mu4e-alert mu4e dired-rainbow pyenv-mode-auto pyenv-mode slime-company org-plus-contrib zzz-to-char yasnippet-snippets yapfify yaml-mode xref-js2 writegood-mode window-numbering which-key wgrep web-mode vlf use-package tree-mode string-inflection slime request-deferred realgud rainbow-delimiters powerline paredit origami org-bullets modern-cpp-font-lock markdown-mode json-mode indium hungry-delete google-translate google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy ein edit-server cuda-mode cpputils-cmake counsel-etags company-tern company-lsp cmake-font-lock clang-format bui beacon autopair auto-package-update auctex 0blayout))))
