@@ -365,6 +365,7 @@ Repeated invocations toggle between the two most recently open buffers."
  ("C-x C-x" . kill-buffer-and-window)
  )
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Global Key Bindings Which can be overridden by minor modes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -737,11 +738,17 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package mu4e
   ;; This package should be installed with AUR mu program
   ;; There is no Melpa package under this name, so don't :ensure it.
+  :bind
+  (:map mu4e-compose-mode-map
+        ("C-c C-s" . message-insert-signature))
   :hook
   ;; Add keybinding to view message in the default external browser
-  (mu4e-mode . (add-to-list ‘mu4e-view-actions
-                           ‘(“ViewInBrowser” . mu4e-action-view-in-browser) t))
+  (mu4e-compose-mode . flyspell-mode)
+  
   :custom
+  ;; This enabled the thread like viewing of email similar to gmail's UI.
+  (mu4e-headers-include-related t)
+  (mu4e-attachment-dir  (expand-file-name "~/Downloads"))
   (mu4e-maildir (expand-file-name "~/Maildir"))
   (mu4e-drafts-folder "/Drafts")
   (mu4e-sent-folder   "/Sent Mail")
@@ -751,9 +758,9 @@ Repeated invocations toggle between the two most recently open buffers."
   ;; setup some handy shortcuts
   (mu4e-maildir-shortcuts
         '(("/INBOX"     . ?i)
-          ("/Sent Mail" . ?s)
-          ("/Drafts"    . ?d)
-          ("/Trash"     . ?t)))
+          ("/Starred"   . ?s)
+          ("/Sent Mail" . ?m)
+          ("/Drafts"    . ?d)))
   ;; allow for updating mail using 'U' in the main view:
   (mu4e-get-mail-command "offlineimap")
   (user-mail-address "alogia@gmail.com")
@@ -762,47 +769,60 @@ Repeated invocations toggle between the two most recently open buffers."
   ;; Remove emacs fill lines when sending
   (mu4e-compose-format-flowed t)
   (user-full-name  "Tyler Kane Thomas")
-   ;; message-signature
-   ;;  (concat
-   ;;    "Tyler Kane Thomas\n"
-   ;;    "https://alogia.io\n")    
-  :config
-  (use-package smtpmail
-    :ensure t
-    :custom
-    (message-send-mail-function 'smtpmail-send-it)
-    (starttls-use-gnutls t)
-    (smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil)))
-    (smtpmail-auth-credentials (expand-file-name "~/.authinfo"))
-    (smtpmail-default-smtp-server "smtp.gmail.com")
-    (smtpmail-smtp-server "smtp.gmail.com")
-    (smtpmail-smtp-service 587)
-    (smtpmail-debug-info t))
-  (use-package mu4e-alert
-    :ensure t
-    :custom
-    (mu4e-alert-interesting-mail-query (concat
-       "flag:unread"
-       " AND NOT flag:trashed"
-       " AND NOT maildir:"
-       "\"All Mail\""))
-  :hook
-  (after-init . mu4e-alert-enable-mode-line-display)
-  :config
-  (defun gjstein-refresh-mu4e-alert-mode-line ()
-    (interactive)
-    (mu4e~proc-kill)
-    (mu4e-alert-enable-mode-line-display)
-    )
-  (run-with-timer 0 60 'gjstein-refresh-mu4e-alert-mode-line)
-  )
-  (require 'org-mu4e)
-  (setq org-mu4e-link-query-in-headers-mode nil)
-  ;; (use-package mu4e-conversation
-  ;;   :ensure t
-  ;;   :config
-  ;;   (with-eval-after-load 'mu4e (require 'mu4e-conversation)))
-  )
+  
+  (mu4e-compose-signature
+   (with-temp-buffer
+     (insert-file-contents "~/.signature")
+     (buffer-string)))
+   :config
+   (add-to-list 'mu4e-view-actions
+                '("ViewInBrowser" . mu4e-action-view-in-browser) t)
+  
+   ;; This hook correctly modifies the \Inbox and \Starred flags on email when they are marked.
+   ;; Without it refiling (archiving) and flagging (starring) email won't properly result in
+   ;; the corresponding gmail action.
+   (add-hook 'mu4e-mark-execute-pre-hook
+             (lambda (mark msg)
+               (cond ((member mark '(refile trash)) (mu4e-action-retag-message msg "-\\Inbox"))
+                     ((equal mark 'flag) (mu4e-action-retag-message msg "\\Starred"))
+                     ((equal mark 'unflag) (mu4e-action-retag-message msg "-\\Starred")))))
+
+   (use-package smtpmail
+     :ensure t
+     :custom
+     (message-send-mail-function 'smtpmail-send-it)
+     (starttls-use-gnutls t)
+     (smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil)))
+     (smtpmail-auth-credentials (expand-file-name "~/.authinfo"))
+     (smtpmail-default-smtp-server "smtp.gmail.com")
+     (smtpmail-smtp-server "smtp.gmail.com")
+     (smtpmail-smtp-service 587)
+     (smtpmail-debug-info t))
+   (use-package mu4e-alert
+     :ensure t
+     :custom
+     (mu4e-alert-interesting-mail-query (concat
+                                         "flag:unread"
+                                         " AND NOT flag:trashed"
+                                         " AND NOT maildir:"
+                                         "\"All Mail\""))
+     :hook
+     (after-init . mu4e-alert-enable-mode-line-display)
+     :config
+     (defun gjstein-refresh-mu4e-alert-mode-line ()
+       (interactive)
+       (mu4e~proc-kill)
+       (mu4e-alert-enable-mode-line-display)
+       )
+     (run-with-timer 0 60 'gjstein-refresh-mu4e-alert-mode-line)
+     )
+   (require 'org-mu4e)
+   (setq org-mu4e-link-query-in-headers-mode nil)
+   ;; (use-package mu4e-conversation
+   ;;   :ensure t
+   ;;   :config
+   ;;   (with-eval-after-load 'mu4e (require 'mu4e-conversation)))
+   )
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1058,6 +1078,7 @@ Repeated invocations toggle between the two most recently open buffers."
   :custom
   (company-idle-delay 0.25)
   (company-selection-wrap-around t)
+  (company-global-modes '(not latex-mode mu4e-compose-mode eshell-mode))
   :config
   ;; remove unused backends
   (setq company-backends (delete 'company-semantic company-backends))
@@ -1543,14 +1564,11 @@ Repeated invocations toggle between the two most recently open buffers."
                 TeX-source-correlate-start-server t
                 Tex-command-default "Latex"
                 reftex-plug-into-AUCTeX t)
-
+  
   (setq font-latex-match-reference-keywords
         '(
-          ;; Custom
-          ("todo" "{")
-          ("finish" "{")
-          ("starbreak" "{")
           ;; biblatex
+          ("finish" "{")
           ("printbibliography" "[{")
           ("addbibresource" "[{")
           ;; Standard commands
@@ -1644,10 +1662,11 @@ Repeated invocations toggle between the two most recently open buffers."
   (LaTeX-mode . TeX-source-correlate-mode)
   (LaTeX-mode . turn-on-reftex)
   (LaTeX-mode . auto-fill-mode)
+  
   )  
 
 
-;; Remove function from mode bar
+;; from mode bar
 (setq mode-line-misc-info
       (delete (assoc 'which-func-mode
                      mode-line-misc-info) mode-line-misc-info))
@@ -1793,6 +1812,17 @@ Repeated invocations toggle between the two most recently open buffers."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(rainbow-delimiters-depth-1-face ((t (:foreground "red"))))
+ '(rainbow-delimiters-depth-2-face ((t (:foreground "orange"))))
+ '(rainbow-delimiters-depth-3-face ((t (:foreground "lightblue"))))
+ '(rainbow-delimiters-depth-4-face ((t (:foreground "violet"))))
+ '(rainbow-delimiters-depth-5-face ((t (:foreground "green"))))
+ '(rainbow-delimiters-depth-6-face ((t (:foreground "yellow"))))
+ '(rainbow-delimiters-depth-7-face ((t (:foreground "red"))))
+ '(rainbow-delimiters-depth-8-face ((t (:foreground "orange"))))
+ '(rainbow-delimiters-depth-9-face ((t (:foreground "lightblue"))))
+ '(rainbow-delimiters-unmatched-face ((t (:background "cyan"))))
+
  '(default ((t (:family "Noto Mono for Powerline" :foundry "GOOG" :slant normal :weight normal :height 85 :width normal))))
  '(company-preview ((t (:foreground "darkgray" :underline t))))
  '(company-preview-common ((t (:inherit company-preview))))
@@ -1802,7 +1832,7 @@ Repeated invocations toggle between the two most recently open buffers."
  '(company-tooltip-selection ((t (:background "steelblue" :foreground "white"))))
  '(which-func ((t (:foreground "#8fb28f")))))
 
-(provide '.emacs)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -1812,3 +1842,4 @@ Repeated invocations toggle between the two most recently open buffers."
  '(package-selected-packages
    (quote
     (org-mu4e mu4e-conversation magit async ensime define-word mu4e-alert mu4e dired-rainbow pyenv-mode-auto pyenv-mode slime-company org-plus-contrib zzz-to-char yasnippet-snippets yapfify yaml-mode xref-js2 writegood-mode window-numbering which-key wgrep web-mode vlf use-package tree-mode string-inflection slime request-deferred realgud rainbow-delimiters powerline paredit origami org-bullets modern-cpp-font-lock markdown-mode json-mode indium hungry-delete google-translate google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy ein edit-server cuda-mode cpputils-cmake counsel-etags company-tern company-lsp cmake-font-lock clang-format bui beacon autopair auto-package-update auctex 0blayout))))
+(provide '.emacs)
