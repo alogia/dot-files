@@ -10,10 +10,11 @@ date_formatted=$(date "+%a %F %H:%M")
 
 # Returns the battery status: "Full", "Discharging", or "Charging".
 battery_status=$(cat /sys/class/power_supply/BAT0/status)
-battery_percentage=$(acpi | cut -d',' -f2)
+battery_charge=$(cat /sys/class/power_supply/BAT0/charge_now) 
+battery_capacity=$(cat /sys/class/power_supply/BAT0/charge_full) 
+battery_percentage=$(expr $battery_charge \* 100 / $battery_capacity)'%'
 
-ssid=$(iw wlp58s0 info | grep ssid | sed 's/ssid //')
-
+ssi= $(iw wlp58s0 info | grep ssid | sed 's/^[[:blank:]]*ssid[[:blank:]]*//') 
 
 # Get volume information for the Master channel. 
 master_right=$(amixer sget Master | grep 'Right:' | awk -F'[][]' '{ print $2 " (" $4 ")" }')
