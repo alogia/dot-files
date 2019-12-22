@@ -16,14 +16,13 @@ type = Maildir
 localfolders = ~/Maildir
 restoreatime = no
 
-# Do not sync this folder
-folderfilter = lambda folder: folder not in ['2007-2011-inbox']
+# Do not sync folders
+folderfilter = lambda folder: folder not in ['Trash']
 ## Remove GMAIL prefix on Google-specific IMAP folders that are pulled down.
 nametrans = lambda f: '[Gmail]/' + f if f in ['Drafts', 'Starred', 'Important', 'Spam', 'Trash', 'All Mail', 'Sent Mail'] else f
 
 [Repository Remote]
 type = Gmail
-
 remotehost = imap.gmail.com
 remoteuser = alogia@gmail.com
 remotepasseval = get_authinfo_password("imap.gmail.com", "alogia@gmail.com", 993)
@@ -36,7 +35,7 @@ holdconnectionopen = true
 keepalive = 60
 
 ## Setup folders to sync
-folderfilter = lambda foldername: foldername not in ['[Gmail]/Spam', '[Gmail]/All Mail', '[Gmail]/Starred', '[Gmail]/Important']
+folderfilter = lambda foldername: foldername not in ['[Gmail]/Drafts', '[Gmail]/Spam', '[Gmail]/All Mail', '[Gmail]/Trash', '[Gmail]/Important']
 
 ## Remove Gmail prefix on IMAP folders
 nametrans = lambda f: f.replace('[Gmail]/', '') if f.startswith('[Gmail]/') else f
