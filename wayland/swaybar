@@ -14,7 +14,7 @@ battery_charge=$(cat /sys/class/power_supply/BAT0/charge_now)
 battery_capacity=$(cat /sys/class/power_supply/BAT0/charge_full) 
 battery_percentage=$(expr $battery_charge \* 100 / $battery_capacity)'%'
 
-ssi= $(iw wlp58s0 info | grep ssid | sed 's/^[[:blank:]]*ssid[[:blank:]]*//') 
+ssid=$(iw wlp58s0 info | grep ssid | sed 's/^[[:blank:]]*ssid[[:blank:]]*//') 
 
 # Get volume information for the Master channel. 
 master_right=$(amixer sget Master | grep 'Right:' | awk -F'[][]' '{ print $2 " (" $4 ")" }')
