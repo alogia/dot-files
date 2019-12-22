@@ -1,13 +1,26 @@
 ;;; package --- Summary - Init file for alogia
 
+;; Bin folder for linking to external apps
+(defvar my:bin "~/.emacs.d/bin")
 ;; Extra plugins and config files are stored here
 (defvar my:plugin-dir  "~/.emacs.d/plugins")
 ;; Should emacs use a compiled init file?
 (defvar my:compiled-init nil)
 ;;; Define the commands which will be run in an ansi-term instead of eshell
 (defvar my:eshell-visual-commands '("ssh" "tail" "htop" "tmux" "vim"))
-;;; Define default browser to used
-(defvar my:browser "/home/phetus/devel/bin/ff")
+
+(defun full-command-path (name)
+  "takes a symlink name and produces a full path."
+  (concat
+   (file-truename my:bin)
+   "/"
+   name))
+
+;;; Define default symlinks to use in my:bin folder
+(defvar my:browser "browser")
+(defvar my:shell "shell")
+(defvar my:lisp "lisp")
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Org Mode setup
@@ -175,10 +188,10 @@
 (defalias 'yes-or-no-p 'y-or-n-p)
 (turn-on-auto-fill)
 ;; set 'term default shell
-(setq-default explicit-shell-file-name "/usr/bin/zsh")
+(setq-default explicit-shell-file-name (full-command-path my:shell))
 ;; Setup Browser
 (setq browse-url-browser-function 'browse-url-generic)
-(setq browse-url-generic-program  my:browser)
+(setq browse-url-generic-program  (full-command-path my:browser))
 
 ;; Set initial scratch message
 (setq initial-scratch-message ";; >>>>>> Scratch buffer created. <<<<<<< \n")
@@ -302,7 +315,7 @@ Repeated invocations toggle between the two most recently open buffers."
                  (file-truename (buffer-file-name)))
         (if my:compiled-init
             (progn (byte-compile-init-files (file-truename "~/.emacs.el"))
-                   (load-file (file-truename "-/.emacs.elc")))
+                   (load-file (file-truename "~/.emacs.elc")))
           (load-file (file-truename "~/.emacs.el")))
       )
     )
@@ -494,7 +507,7 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package slime
   :ensure t
   :custom
-  (inferior-lisp-program "/usr/bin/sbcl")
+  (inferior-lisp-program (full-command-path my:lisp))
   :hook
   (lisp-mode . slime-mode)
   (inferior-lisp-mode . inferior-slime-mode)
