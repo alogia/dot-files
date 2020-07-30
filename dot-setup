@@ -75,6 +75,9 @@ case $arg in
 	git)
 		try_link etc/gitconfig 			.gitconfig
 		;;
+	R)
+		try_link etc/Renviron 			.Renviron
+		;;
 	rtorrent)
 		try_link etc/rtorrent.rc 		.rtorrent.rc
 		;;

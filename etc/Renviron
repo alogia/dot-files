@@ -1,0 +1,4 @@
+R_HOME_USER = /home/phetus/
+R_PROFILE_USER = ${HOME}/.config/r/.Rprofile
+R_LIBS_USER = ${HOME}/.rlibs
+R_HISTFILE = ${HOME}/r.Rhistory                                             
