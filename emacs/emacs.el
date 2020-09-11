@@ -57,7 +57,7 @@
 ;; Set packages to install
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq package-archives '(("melpa-stable" . "https://stable.melpa.org/packages/")
-                         ("melpa" . "http://melpa.milkbox.net/packages/")
+                         ("melpa" . "https://melpa.org/packages/")
                          ("gnu" . "http://elpa.gnu.org/packages/")))
 ;; Disable package initialize after us.  We either initialize it
 ;; anyway in case of interpreted .emacs, or we don't want slow
@@ -180,6 +180,17 @@
 (setq browse-url-browser-function 'browse-url-generic)
 (setq browse-url-generic-program  my:browser)
 
+;; Set initial scratch message
+(setq initial-scratch-message ";; >>>>>> Scratch buffer created. <<<<<<< \n")
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;    Abbreviations File
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq abbrev-file-name              ;; tell emacs where to read abbrev
+      "~/.emacs.d/abbreviations.el")  ;; definitions from...
+(setq save-abbrevs t)                 ;; (ask) save abbrevs when files are saved
+(setq-default abbrev-mode t)          ;; turn it on for all modes
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -335,6 +346,7 @@ Repeated invocations toggle between the two most recently open buffers."
 ;; ONLY USE FOR BINDINGS WHICH SHOULD NEVER BE OVERRIDDEN BY ANY MODE
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (bind-keys*
+ ;;Movement Keys
  ("C-t"     . forward-paragraph)
  ("C-n"     . backward-paragraph)
  ("C-h"     . back-to-indentation)
@@ -347,6 +359,9 @@ Repeated invocations toggle between the two most recently open buffers."
  ("C-s"     . move-end-of-line)
  ("M-c"     . avy-goto-char)
  ("M-r"     . avy-goto-word-1)
+
+ ("C-S-s"   . isearch-forward)
+ 
  ("S-SPC"   . set-mark-command)
  ("M-<tab>" . switch-to-previous-buffer)
  ("C-e"     . mark-sexp)
@@ -365,6 +380,8 @@ Repeated invocations toggle between the two most recently open buffers."
  ("C-x C-x" . kill-buffer-and-window)
  )
 
+;; Rebind isearch mode map to conform to the same init sequence.
+(define-key isearch-mode-map (kbd "C-S-s") 'isearch-repeat-forward)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Global Key Bindings Which can be overridden by minor modes
@@ -382,6 +399,9 @@ Repeated invocations toggle between the two most recently open buffers."
 ;;                    GENERAL PACKAGES                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Load additional dired commands from Prelude
+(require 'dired-x)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; async - library for async/thread processing
@@ -963,10 +983,20 @@ Repeated invocations toggle between the two most recently open buffers."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Scala Mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package ensime
-  :ensure t
-  )
+;;(use-package ensime
+;;  :ensure t
+;;  )
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ESS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package ess
+  :ensure t
+  :init (require 'ess-site)
+  :mode (("\\.[rR]\\'" . R-mode)
+         ("\\.Rnw\\'" . Rnw-mode))
+)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Scala Mode
@@ -1116,18 +1146,18 @@ Repeated invocations toggle between the two most recently open buffers."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Company Tern backend
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package company-tern
-  :ensure t
-  :hook
-  (js2-mode .
-            (lambda ()
-              (add-to-list 'company-backends 'company-tern)
-              (tern-mode)))
-  :bind
-  (:map tern-mode-keymap
-        ;; Disable completion keybindings, as we use xref-js2 instead
-        ("M-." . nil)
-        ("M-," . nil)))
+;;(use-package company-tern
+;;  :ensure t
+;;  :hook
+;;  (js2-mode .
+;;            (lambda ()
+;;              (add-to-list 'company-backends 'company-tern)
+;;              (tern-mode)))
+;;  :bind
+;;  (:map tern-mode-keymap
+;;        ;; Disable completion keybindings, as we use xref-js2 instead
+;;        ("M-." . nil)
+;;        ("M-," . nil)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1171,13 +1201,22 @@ Repeated invocations toggle between the two most recently open buffers."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package google-translate
   :ensure t
+  :init
+  (require 'google-translate-smooth-ui)
   :bind
-  ("C-c C-t" . google-translate-at-point)
-  ("C-c C-T" . google-translate-at-point-reverse)
+  ("C-x g g" . google-translate-at-point)
+  ("C-x g r" . google-translate-at-point-reverse)
   :custom
   (google-translate-show-phonetic t)
-  (google-translate-default-target-language "en")
-  (google-translate-default-source-language "zh-CN"))
+  (google-translate-default-target-language "zh-CN")
+  (google-translate-default-source-language "en")
+  (google-translate-translation-directions-alist
+      '(("zh-CN" . "en") ("en" . "zh-CN")))
+
+  :config
+  (use-package popup
+    :ensure t)
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; string-inflection
@@ -1807,32 +1846,6 @@ Repeated invocations toggle between the two most recently open buffers."
                                (powerline-render rhs)))))))
   (powerline-right-theme)
   )
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(rainbow-delimiters-depth-1-face ((t (:foreground "red"))))
- '(rainbow-delimiters-depth-2-face ((t (:foreground "orange"))))
- '(rainbow-delimiters-depth-3-face ((t (:foreground "lightblue"))))
- '(rainbow-delimiters-depth-4-face ((t (:foreground "violet"))))
- '(rainbow-delimiters-depth-5-face ((t (:foreground "green"))))
- '(rainbow-delimiters-depth-6-face ((t (:foreground "yellow"))))
- '(rainbow-delimiters-depth-7-face ((t (:foreground "red"))))
- '(rainbow-delimiters-depth-8-face ((t (:foreground "orange"))))
- '(rainbow-delimiters-depth-9-face ((t (:foreground "lightblue"))))
- '(rainbow-delimiters-unmatched-face ((t (:background "cyan"))))
-
- '(default ((t (:family "Noto Mono for Powerline" :foundry "GOOG" :slant normal :weight normal :height 85 :width normal))))
- '(company-preview ((t (:foreground "darkgray" :underline t))))
- '(company-preview-common ((t (:inherit company-preview))))
- '(company-tooltip ((t (:background "lightgray" :foreground "black"))))
- '(company-tooltip-common ((((type x)) (:inherit company-tooltip :weight bold)) (t (:inherit company-tooltip))))
- '(company-tooltip-common-selection ((((type x)) (:inherit company-tooltip-selection :weight bold)) (t (:inherit company-tooltip-selection))))
- '(company-tooltip-selection ((t (:background "steelblue" :foreground "white"))))
- '(which-func ((t (:foreground "#8fb28f")))))
-
-
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -1840,6 +1853,16 @@ Repeated invocations toggle between the two most recently open buffers."
  ;; If there is more than one, they won't work right.
  '(git-gutter:update-interval 5)
  '(package-selected-packages
-   (quote
-    (org-mu4e mu4e-conversation magit async ensime define-word mu4e-alert mu4e dired-rainbow pyenv-mode-auto pyenv-mode slime-company org-plus-contrib zzz-to-char yasnippet-snippets yapfify yaml-mode xref-js2 writegood-mode window-numbering which-key wgrep web-mode vlf use-package tree-mode string-inflection slime request-deferred realgud rainbow-delimiters powerline paredit origami org-bullets modern-cpp-font-lock markdown-mode json-mode indium hungry-delete google-translate google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy ein edit-server cuda-mode cpputils-cmake counsel-etags company-tern company-lsp cmake-font-lock clang-format bui beacon autopair auto-package-update auctex 0blayout))))
-(provide '.emacs)
+   '(popup google-translate ess zzz-to-char yasnippet-snippets yaml-mode xref-js2 writegood-mode window-numbering which-key wgrep web-mode use-package string-inflection slime-company scala-mode sbt-mode realgud rainbow-delimiters pyenv-mode powerline paredit origami org-bullets modern-cpp-font-lock magit json-mode indium hungry-delete google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy edit-server dired-rainbow define-word cuda-mode cpputils-cmake counsel-etags company-lsp cmake-mode clang-format beacon autopair auto-package-update auctex)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(company-preview ((t (:foreground "darkgray" :underline t))))
+ '(company-preview-common ((t (:inherit company-preview))))
+ '(company-tooltip ((t (:background "lightgray" :foreground "black"))))
+ '(company-tooltip-common ((((type x)) (:inherit company-tooltip :weight bold)) (t (:inherit company-tooltip))))
+ '(company-tooltip-common-selection ((((type x)) (:inherit company-tooltip-selection :weight bold)) (t (:inherit company-tooltip-selection))))
+ '(company-tooltip-selection ((t (:background "steelblue" :foreground "white"))))
+ '(which-func ((t (:foreground "blue")))))
