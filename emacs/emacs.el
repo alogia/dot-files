@@ -197,11 +197,12 @@
 (setq initial-scratch-message ";; >>>>>> Scratch buffer created. <<<<<<< \n")
 
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;    Abbreviations File
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq abbrev-file-name              ;; tell emacs where to read abbrev
-      "~/.emacs.d/abbreviations.el")  ;; definitions from...
+      "~/.emacs.d/config/abbreviations.el")  ;; definitions from...
 (setq save-abbrevs t)                 ;; (ask) save abbrevs when files are saved
 (setq-default abbrev-mode t)          ;; turn it on for all modes
 
@@ -274,6 +275,7 @@ Repeated invocations toggle between the two most recently open buffers."
   (when newline-and-indent
     (indent-according-to-mode)))
 
+
 ;; Autoindent open-*-lines
 (defvar newline-and-indent t
   "Modify the behavior of the open-*-line functions to cause them to autoindent.")
@@ -336,8 +338,7 @@ Repeated invocations toggle between the two most recently open buffers."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (eval-when-compile
   (require 'use-package))
-(use-package bind-key
-  :ensure t)
+
 ;; so we can (require 'use-package) even in compiled emacs to e.g. read docs
 (use-package use-package
   :commands use-package-autoload-keymap)
@@ -354,64 +355,14 @@ Repeated invocations toggle between the two most recently open buffers."
   )
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Global Key Bindings regardless of any mode
-;; ONLY USE FOR BINDINGS WHICH SHOULD NEVER BE OVERRIDDEN BY ANY MODE
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(bind-keys*
- ;;Movement Keys
- ("C-t"     . forward-paragraph)
- ("C-n"     . backward-paragraph)
- ("C-h"     . back-to-indentation)
- ("M-t"     . next-line)
- ("M-n"     . previous-line)
- ("M-s"     . forward-char)
- ("M-h"     . backward-char)
- ("M-b"     . backward-word)
- ("M-l"     . forward-word)
- ("C-s"     . move-end-of-line)
- ("M-c"     . avy-goto-char)
- ("M-r"     . avy-goto-word-1)
-
- ("C-S-s"   . isearch-forward)
- 
- ("S-SPC"   . set-mark-command)
- ("M-<tab>" . switch-to-previous-buffer)
- ("C-e"     . mark-sexp)
- ("<f5>"    . toggle-truncate-lines)
- ("<f6>"    . linum-mode)
- ("C-o"     . vi-open-previous-line)
- ("M-o"     . vi-open-next-line)
- ("C-c l"   . org-store-link)
- ("C-c a"   . org-agenda)
- ("C-c c"   . org-capture)
- ("C-c o"   . org-open-main)
- ("C-c u"   . upcase-word)
- ("M-u"     . capitalize-word)
- ("C-/"     . undo)
- ("C-x M-f" . project-find-file)
- ("C-x C-x" . kill-buffer-and-window)
- )
-
-;; Rebind isearch mode map to conform to the same init sequence.
-(define-key isearch-mode-map (kbd "C-S-s") 'isearch-repeat-forward)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Global Key Bindings Which can be overridden by minor modes
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(global-set-key (kbd "C-c v") 'visual-line-mode)
-(global-set-key (kbd "C-c i") 'ielm)
-(global-set-key (kbd "M-.")  'xref-find-definitions)
-(global-set-key (kbd "C-c .") 'org-time-stamp)
-;; Unbind C-z from suspend-frame
-(global-unset-key (kbd "C-z"))
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                    GENERAL PACKAGES                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Load Global keysyms
+(load "~/.emacs.d/config/global-keys.el")
 
 ;; Load additional dired commands from Prelude
 (require 'dired-x)
@@ -1336,6 +1287,9 @@ Repeated invocations toggle between the two most recently open buffers."
   :hook
   ((emacs-lisp-mode lisp-mode lisp-interaction-mode scheme-mode slime-repl-mode)
    . enable-paredit-mode)
+  :bind
+  (("C-M-t" . paredit-forward)
+   ("C-M-n" . paredit-backward))
   )
 
 
@@ -1568,7 +1522,7 @@ Repeated invocations toggle between the two most recently open buffers."
          ("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
   :custom
-  (markdown-coding-system "utf-8")
+  (markdown-coding-system nil)
   (markdown-command (concat
        "/usr/bin/pandoc"
        " --from=markdown --to=html"

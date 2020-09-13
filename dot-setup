@@ -6,13 +6,25 @@ function raise_error {
 }
 
 function print_usage {
-	echo "Usage: buff up|down|status"
+	echo "Usage: dot-setup PROGRAM"
+}
+
+
+function resolve_path {
+	local SOURCE="${BASH_SOURCE[0]}"
+	while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+		DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+		SOURCE="$(readlink "$SOURCE")"
+		[[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+	done
+	DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
 }
 
 function try_link { 
+	resolve_path
 	if [ ! -f ~/$2 ]; then
 		mkdir -p ~/$(dirname $2)
-		ln -v -s `pwd`/$1 ~/$2
+		ln -v -s $DIR/$1 ~/$2
 	else 
 		echo "File ${2} already exists: skipping..."
 	fi
@@ -22,9 +34,12 @@ function try_link {
 arg=$1
 
 case $arg in
+	setup)
+		try_link dot-setup  			   	bin/dot-setup
+		;;
 	vim)
-		try_link vim/vimrc .vimrc
-        try_link etc/aspell.en.pws .vim/spell/en.utf-8.add
+		try_link vim/vimrc 					.vimrc
+        try_link etc/aspell.en.pws 			.vim/spell/en.utf-8.add
 		git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 		;;
 	zsh)
@@ -39,9 +54,11 @@ case $arg in
 	emacs)
 		try_link emacs/emacs.el 			.emacs.el
 		try_link emacs/sbclrc 				.sbclrc
-		try_link emacs/eshell/alias 		.emacs.d/eshell/alias
 		try_link emacs/emacsclient.desktop	.local/share/applications/emacsclient.desktop
+		try_link emacs/eshell/alias 		.emacs.d/eshell/alias
 		try_link emacs/eshell/commands.el 	.emacs.d/eshell/commands.el
+		try_link emacs/abbreviations.el 	.emacs.d/config/abbreviations.el
+		try_link emacs/global-keys.el 		.emacs.d/config/global-keys.el
         try_link etc/aspell.en.prepl	 	.aspell.en.prepl
         try_link etc/aspell.en.pws 			.aspell.en.pws
 		;;
@@ -77,6 +94,7 @@ case $arg in
 		;;
 	R)
 		try_link etc/Renviron 			.Renviron
+		try_link etc/Rprofile 			.Rprofile
 		;;
 	rtorrent)
 		try_link etc/rtorrent.rc 		.rtorrent.rc
