@@ -1,0 +1,25 @@
+;;-*-coding: utf-8;-*-
+(define-abbrev-table 'global-abbrev-table
+  '(
+    ("8Delta" "Δ" nil :count 0)
+    ("8Omega" "Ω" nil :count 0)
+    ("8Sigma" "Σ" nil :count 0)
+    ("8alpha" "α" nil :count 2)
+    ("8beta" "β" nil :count 1)
+    ("8delta" "δ" nil :count 0)
+    ("8gamma" "γ" nil :count 1)
+    ("8in" "∈" nil :count 0)
+    ("8inf" "∞" nil :count 0)
+    ("8lambda" "λ" nil :count 0)
+    ("8mu" "µ" nil :count 0)
+    ("8nin" "∉" nil :count 0)
+    ("8nu" "ν" nil :count 0)
+    ("8omega" "ω" nil :count 0)
+    ("8phi" "φ" nil :count 0)
+    ("8pi" "π" nil :count 0)
+    ("8psi" "ψ" nil :count 0)
+    ("8sigma" "σ" nil :count 0)
+    ("8tau" "τ" nil :count 0)
+    ("8theta" "θ" nil :count 0)
+   ))
+
