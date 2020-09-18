@@ -1,62 +1,8 @@
 ;;; package --- Summary - Init file for alogia
 
-;; Bin folder for linking to external apps
-(defvar my:bin "~/.emacs.d/bin")
-;; Extra plugins and config files are stored here
-(defvar my:plugin-dir  "~/.emacs.d/plugins")
-;; Should emacs use a compiled init file?
-(defvar my:compiled-init nil)
+
 ;;; Define the commands which will be run in an ansi-term instead of eshell
 (defvar my:eshell-visual-commands '("ssh" "tail" "htop" "tmux" "vim"))
-
-(defun full-command-path (name)
-  "takes a symlink name and produces a full path."
-  (concat
-   (file-truename my:bin)
-   "/"
-   name))
-
-;;; Define default symlinks to use in my:bin folder
-(defvar my:browser "browser")
-(defvar my:shell "shell")
-(defvar my:lisp "lisp")
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Org Mode setup
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Default directory for Org files
-(defvar my:org-dir "~/org/")
-;; Default file for Org mode to open with if started with C-c o
-(defvar my:org-default-file "master.org")
-;; Default file for org captures
-(defvar my:org-default-notes "notes.org")
-;; Defines targets files for refiling
-(defvar my:org-refile-targets
-     '(("notes.org"    .  (:maxlevel . 8)) ;; Default landing place for captures
-       ("tasks.org"    .  (:maxlevel . 7)) ;; The TODO list
-       ("projects.org" .  (:maxlevel . 3)) ;; Programming projects stuff
-       ("ideas.org"    .  (:maxlevel . 5)) ;; Ideas for articles and such
-       ("books.org"    .  (:maxlevel . 9)) ;; Notes on books
-       ("master.org"   .  (:maxlevel . 9)) ;; A places for all the rest
-       ("bookmarks.org" . (:maxlevel . 3)) ;; Bookmarks from web
-       ))
-
-;;Defines capture templates
-(setq org-capture-templates
-      `(
-        ;; TODO  =============================  FIX ALL THESE TEMPLATES
-        ("n" "Notes" entry (file ,(concat my:org-dir "notes.org"))
-         "* %?%^G\n  :PROPERTIES:\n  :ENTERED_ON: %T\n  :END:\n%i\n")
-        ("i" "Ideas" entry (file ,(concat my:org-dir "ideas.org"))
-         "* %?%^G\n  :PROPERTIES:\n  :ENTERED_ON: %T\n  :END:\n%i\n" :empty-lines 1)
-        ("t" "Todo" entry (file+headline "tasks.org" "Tasks")
-         "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n%a\n")
-        ("p" "Projects" entry (file ,(concat my:org-dir "projects.org"))
-         "* %?%^G\n  :PROPERTIES:\n  :ENTERED_ON: %T\n  :END:\n%i\n")
-        ("b" "Bookmarks" entry (file ,(concat my:org-dir "bookmarks.org"))
-         "* [[%:link][%:description]]\n TAGS:%?%^G\n %i" :empty-lines 1)
-        ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Compiler setups
@@ -102,20 +48,6 @@
                                            (list path)
                                          nil))
                                    load-path))))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; By default Emacs triggers garbage collection at ~0.8MB which makes
-;; startup really slow. Since most systems have at least 64MB of memory,
-;; we increase it during initialization.
-(setq gc-cons-threshold 64000000)
-;; (add-hook 'after-init-hook #'(lambda ()
-;;                                ;; restore after startup
-;;                                (setq gc-cons-threshold 800000)))
-
-
-;; Create the plugin directory and add it to load path if it doesn't already exist.
-(make-directory (expand-file-name my:plugin-dir) :parents)
-(add-to-list 'load-path (expand-file-name my:plugin-dir))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Start emacs server if not already running
@@ -192,17 +124,15 @@
 ;; Setup Browser
 (setq browse-url-browser-function 'browse-url-generic)
 (setq browse-url-generic-program  (full-command-path my:browser))
-
 ;; Set initial scratch message
 (setq initial-scratch-message ";; >>>>>> Scratch buffer created. <<<<<<< \n")
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;    Abbreviations File
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq abbrev-file-name              ;; tell emacs where to read abbrev
-      "~/.emacs.d/config/abbreviations.el")  ;; definitions from...
+      "~/.emacs.d/abbreviations.el")  ;; definitions from...
 (setq save-abbrevs t)                 ;; (ask) save abbrevs when files are saved
 (setq-default abbrev-mode t)          ;; turn it on for all modes
 
@@ -249,13 +179,6 @@ Repeated invocations toggle between the two most recently open buffers."
   (switch-to-buffer (other-buffer (current-buffer) 1)))
 
 
-(defun org-open-main ()
-    "Opens the default org file from any buffer."
-    (interactive)
-    (find-file (concat
-                (expand-file-name my:org-dir)
-                my:org-default-file)))
-
 ;; Behave like vi's o command
 (defun vi-open-next-line (arg)
   "Move to the next line and then open ARG new lines.  See also `newline-and-indent'."
@@ -275,7 +198,6 @@ Repeated invocations toggle between the two most recently open buffers."
   (when newline-and-indent
     (indent-according-to-mode)))
 
-
 ;; Autoindent open-*-lines
 (defvar newline-and-indent t
   "Modify the behavior of the open-*-line functions to cause them to autoindent.")
@@ -286,51 +208,6 @@ Repeated invocations toggle between the two most recently open buffers."
   (interactive) (term explicit-shell-file-name))
 (define-key global-map (kbd "C-c t") #'start-default-term)
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Automatically compile and save ~/.emacs.el
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun byte-compile-init-files (file)
-  "Automatically compile FILE."
-  (interactive)
-  (save-restriction
-    ;; Suppress the warning when you setq an undefined variable.
-    (if (>= emacs-major-version 23)
-        (setq byte-compile-warnings '(not free-vars obsolete))
-      (setq byte-compile-warnings
-            '(unresolved
-              callargs
-              redefine
-              obsolete
-              noruntime
-              cl-warnings
-              interactive-only)))
-    (byte-compile-file (expand-file-name file)))
-  )
-
-
-(add-hook
- 'after-save-hook
- (function
-  (lambda ()
-    (if (string= (file-truename "~/.emacs.el")
-                 (file-truename (buffer-file-name)))
-        (if my:compiled-init
-            (progn (byte-compile-init-files (file-truename "~/.emacs.el"))
-                   (load-file (file-truename "~/.emacs.elc")))
-          (load-file (file-truename "~/.emacs.el")))
-      )
-    )
-  )
- )
-
-
-;; Byte-compile again to ~/.emacs.elc if it is outdated
-(if my:compiled-init
-    (if (file-newer-than-file-p
-         (file-truename "~/.emacs.el")
-         (file-truename "~/.emacs.elc"))
-        (byte-compile-init-files "~/.emacs.el")))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -361,8 +238,18 @@ Repeated invocations toggle between the two most recently open buffers."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Load all files from my:config directory
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Load Global keysyms
-(load "~/.emacs.d/config/global-keys.el")
+(defun load-directory (dir)
+  (let ((load-it (lambda (f)
+                   (load-file (concat (file-name-as-directory dir) f)))
+                 ))
+    (mapc load-it (remove (buffer-file-name) 
+                          (remove (concat (buffer-file-name) "c")
+                                  (directory-files dir nil "\\.el[c]?$"))))))
+(load-directory my:compiled)
 
 ;; Load additional dired commands from Prelude
 (require 'dired-x)
@@ -1197,34 +1084,6 @@ Repeated invocations toggle between the two most recently open buffers."
          ("C-c c u" . string-inflection-upcase))
   )
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Org-Mode
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package org
-  :ensure t
-  :init
-  (require 'org-protocol)
-  (require 'org-capture)
-  :mode ("\\.org\\'" . org-mode)
-  :custom
-  (org-directory (expand-file-name my:org-dir))
-  (org-default-notes-file (concat org-directory my:org-default-notes))
-  (org-agenda-files (list org-directory))
-  (org-log-done 'time)
-  (org-todo-keywords '((sequence "TODO" "INPROGRESS" "DONE")))
-  (org-todo-keyword-faces '(("INPROGRESS" . (:foreground "red" :weight bold))))
-  (org-refile-targets (mapcar (lambda (tg) (cons (concat (expand-file-name my:org-dir) (car tg)) (cdr tg))) my:org-refile-targets))
-  :config
-  (use-package org-bullets
-    :ensure t
-    :hook (org-mode . org-bullets-mode))
-  (use-package writegood-mode
-    :ensure t
-    :hook
-    (org-mode . writegood-mode)
-    )
-  )
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; web-mode
@@ -1289,7 +1148,8 @@ Repeated invocations toggle between the two most recently open buffers."
    . enable-paredit-mode)
   :bind
   (("C-M-t" . paredit-forward)
-   ("C-M-n" . paredit-backward))
+   ("C-M-n" . paredit-backward)
+   ("C-M-<backspace>" . backward-kill-sexp))
   )
 
 
@@ -1820,7 +1680,7 @@ Repeated invocations toggle between the two most recently open buffers."
  ;; If there is more than one, they won't work right.
  '(git-gutter:update-interval 5)
  '(package-selected-packages
-   '(popup google-translate ess zzz-to-char yasnippet-snippets yaml-mode xref-js2 writegood-mode window-numbering which-key wgrep web-mode use-package string-inflection slime-company scala-mode sbt-mode realgud rainbow-delimiters pyenv-mode powerline paredit origami org-bullets modern-cpp-font-lock magit json-mode indium hungry-delete google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy edit-server dired-rainbow define-word cuda-mode cpputils-cmake counsel-etags company-lsp cmake-mode clang-format beacon autopair auto-package-update auctex)))
+   '(org-roam cmake-font-lock popup google-translate ess zzz-to-char yasnippet-snippets yaml-mode xref-js2 writegood-mode window-numbering which-key wgrep web-mode use-package string-inflection slime-company scala-mode sbt-mode realgud rainbow-delimiters pyenv-mode powerline paredit origami org-bullets modern-cpp-font-lock magit json-mode indium hungry-delete google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy edit-server dired-rainbow define-word cuda-mode cpputils-cmake counsel-etags company-lsp cmake-mode clang-format beacon autopair auto-package-update auctex)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
