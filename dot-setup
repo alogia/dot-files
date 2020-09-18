@@ -30,6 +30,12 @@ function try_link {
 	fi
 }
 
+function try_link_all {
+	for f in $(ls $DIR/$1)
+	do
+		try_link $1/$f $2/$f 
+	done
+}
 
 arg=$1
 
@@ -52,15 +58,14 @@ case $arg in
 		try_link zsh/fdignore 				.fdignore
 		;;
 	emacs)
-		try_link emacs/emacs.el 			.emacs.el
+		try_link emacs/emacs.el 			.emacs/init.el
 		try_link emacs/sbclrc 				.sbclrc
 		try_link emacs/emacsclient.desktop	.local/share/applications/emacsclient.desktop
 		try_link emacs/eshell/alias 		.emacs.d/eshell/alias
 		try_link emacs/eshell/commands.el 	.emacs.d/eshell/commands.el
-		try_link emacs/abbreviations.el 	.emacs.d/config/abbreviations.el
-		try_link emacs/global-keys.el 		.emacs.d/config/global-keys.el
         try_link etc/aspell.en.prepl	 	.aspell.en.prepl
         try_link etc/aspell.en.pws 			.aspell.en.pws
+		try_link_all emacs/config           .emacs.d/config
 		;;
 	screen)
 		try_link etc/screenrc 		.screenrc
