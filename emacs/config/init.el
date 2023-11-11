@@ -1,8 +1,6 @@
 ;;; package --- Summary - Init file for alogia
 
 
-;;; Define the commands which will be run in an ansi-term instead of eshell
-(defvar my:eshell-visual-commands '("ssh" "tail" "htop" "tmux" "vim"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Compiler setups
@@ -68,7 +66,7 @@
 ;; Set the header bar font
 (set-face-attribute 'header-line nil  :height my-font-size)
 ;; Turn off line numbers by default
-(global-linum-mode -1)
+;;(global-linum-mode -1)
 ;; Show empty lines at end of file
 (setq-default indicate-empty-lines t)
 (when (not indicate-empty-lines)
@@ -239,17 +237,16 @@ Repeated invocations toggle between the two most recently open buffers."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Load all files from my:config directory
+;; 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Load Global keysyms
-(defun load-directory (dir)
-  (let ((load-it (lambda (f)
-                   (load-file (concat (file-name-as-directory dir) f)))
-                 ))
-    (mapc load-it (remove (buffer-file-name) 
-                          (remove (concat (buffer-file-name) "c")
-                                  (directory-files dir nil "\\.el[c]?$"))))))
-(load-directory my:compiled)
+
+;TODO: TEMP FIX
+
+(load-file "~/.emacs.d/config/global-keys.el")
+(load-file "~/.emacs.d/config/eshell.el")
+
+;(load-directory my:compiled)
+
 
 ;; Load additional dired commands from Prelude
 (require 'dired-x)
@@ -269,33 +266,6 @@ Repeated invocations toggle between the two most recently open buffers."
   :ensure t)
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Eshell
-;; Custom commands are kept in .emacs.d/eshell/commands
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package eshell
-  :init
-  (load (expand-file-name "~/.emacs.d/eshell/commands.el"))
-  (setenv "PATH"
-        (concat
-         "/usr/local/bin:/usr/local/sbin:" ;TODO: Add all the proper paths in here
-         (getenv "PATH")))
-  
-  :custom
-  (eshell-scroll-to-bottom-on-input 'all)
-  (eshell-error-if-no-glob t)
-  (eshell-hist-ignoredups t)
-  (eshell-save-history-on-exit t)
-  (eshell-prefer-lisp-functions nil)
-  (eshell-destroy-buffer-when-process-dies t)
-  :hook
-  (eshell-mode . (lambda ()
-                   ;; Must define keymap in mode hook
-                   (define-key eshell-mode-map (kbd "C-!") 'eshell/x)
-                   (setq eshell-visual-commands
-                         (delete-dups (append my:eshell-visual-commands eshell-visual-commands)))))
-  )
-                   
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Ivy config
@@ -757,18 +727,6 @@ Repeated invocations toggle between the two most recently open buffers."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; RealGud - https://github.com/realgud/realgud
-;; A rewrite of GUD
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package realgud
-  :ensure t
-  :init
-  (setenv "TERM" "dumb")
-  :custom
-  (realgud:pdb-command-name "python -m pdb"))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Python mode settings
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package python
@@ -832,15 +790,7 @@ Repeated invocations toggle between the two most recently open buffers."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Scala Mode
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;(use-package ensime
-;;  :ensure t
-;;  )
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ESS
+;; ESS - Emacs Speaks Statistics
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package ess
   :ensure t
@@ -848,6 +798,7 @@ Repeated invocations toggle between the two most recently open buffers."
   :mode (("\\.[rR]\\'" . R-mode)
          ("\\.Rnw\\'" . Rnw-mode))
 )
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Scala Mode
@@ -1229,27 +1180,6 @@ Repeated invocations toggle between the two most recently open buffers."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; GitGutter
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package git-gutter
-  :ensure t
-  :init
-  (eval-when-compile
-    ;; Silence missing function warnings
-    (declare-function global-git-gutter-mode "git-gutter.el"))
-  :config
-  ;; If you enable global minor mode
-  (global-git-gutter-mode t)
-  ;; Auto update every 5 seconds
-  (custom-set-variables
-   '(git-gutter:update-interval 5))
-
-  ;; Set the foreground color of modified lines to something obvious
-  (set-face-foreground 'git-gutter:modified "purple")
-  )
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; cmake-mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package cmake-mode
@@ -1381,6 +1311,8 @@ Repeated invocations toggle between the two most recently open buffers."
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
+  :hook
+  (markdown-mode . (lambda () paredit-mode nil))
   :custom
   (markdown-coding-system nil)
   (markdown-command (concat
@@ -1397,25 +1329,50 @@ Repeated invocations toggle between the two most recently open buffers."
   :commands lsp
   :hook
     ((java-mode c-mode c++-mode) . lsp)
-  :config
-  (require 'lsp-clients)
-  (use-package company-lsp
-    :ensure t
-    :commands company-lsp
+    (scala-mode . lsp)
+    (lsp-mode . lsp-lens-mode)
     :config
-    (push 'company-lsp company-backends))
-;  (use-package lsp-ui
-;    :ensure t
-;    :commands lsp-ui-mode
-;    :hook
-;    (lsp-mode . lsp-ui-mode)
-;    :config
-;    (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+    ; Company lsp integration
+    (use-package company-lsp
+      :ensure t
+      :commands company-lsp
+      :config
+      (push 'company-lsp company-backends))
+    (use-package lsp-ui
+      :ensure t
+      :commands lsp-ui-mode
+      :hook
+      (lsp-mode . lsp-ui-mode)
+      :config
+      (add-hook 'lsp-mode-hook 'lsp-ui-mode))   
+    (setq lsp-prefer-flymake nil))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Metals (scala) backend for lsp
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package lsp-metals
+  :ensure t
+  :config (setq lsp-metals-treeview-show-when-views-received t))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Use the Debug Adapter Protocol for running tests and debugging
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package dap-mode
+  :ensure t
+  :hook
+  (lsp-mode . dap-mode)
+  (lsp-mode . dap-ui-mode)
+  :config
+  (use-package posframe
+    :ensure t
+    )
   )
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; auctex
+;; Auctex
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package tex-site
   :ensure auctex
@@ -1673,23 +1630,3 @@ Repeated invocations toggle between the two most recently open buffers."
                                (powerline-render rhs)))))))
   (powerline-right-theme)
   )
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(git-gutter:update-interval 5)
- '(package-selected-packages
-   '(org-roam cmake-font-lock popup google-translate ess zzz-to-char yasnippet-snippets yaml-mode xref-js2 writegood-mode window-numbering which-key wgrep web-mode use-package string-inflection slime-company scala-mode sbt-mode realgud rainbow-delimiters pyenv-mode powerline paredit origami org-bullets modern-cpp-font-lock magit json-mode indium hungry-delete google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy edit-server dired-rainbow define-word cuda-mode cpputils-cmake counsel-etags company-lsp cmake-mode clang-format beacon autopair auto-package-update auctex)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(company-preview ((t (:foreground "darkgray" :underline t))))
- '(company-preview-common ((t (:inherit company-preview))))
- '(company-tooltip ((t (:background "lightgray" :foreground "black"))))
- '(company-tooltip-common ((((type x)) (:inherit company-tooltip :weight bold)) (t (:inherit company-tooltip))))
- '(company-tooltip-common-selection ((((type x)) (:inherit company-tooltip-selection :weight bold)) (t (:inherit company-tooltip-selection))))
- '(company-tooltip-selection ((t (:background "steelblue" :foreground "white"))))
- '(which-func ((t (:foreground "blue")))))

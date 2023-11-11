@@ -31,8 +31,8 @@
  ("C-e"     . mark-sexp)
  ("<f5>"    . toggle-truncate-lines)
  ("<f6>"    . linum-mode)
- ("C-o"     . vi-open-previous-line)
  ("M-o"     . vi-open-next-line)
+ ("M-S-o"   . vi-open-previous-line)
  ("C-c l"   . org-store-link)
  ("C-c a"   . org-agenda)
  ("C-c c"   . org-capture)
@@ -40,8 +40,10 @@
  ("C-c u"   . upcase-word)
  ("M-u"     . capitalize-word)
  ("C-/"     . undo)
+ ("C-M-;"   . comment-region)
  ("C-x M-f" . project-find-file)
  ("C-x C-x" . kill-buffer-and-window)
+ ("C-o"     . other-window)
  )
 
 ;; Rebind isearch mode map to conform to the same init sequence.

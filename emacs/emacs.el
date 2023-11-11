@@ -38,43 +38,31 @@
    "/"
    name))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun get-config-sources ()
   "Return all config files in my:config."
   (delete "." (delete ".." (directory-files (expand-file-name my:config) nil "\\.el$"))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun get-config-compiled ()
   "Return all compiled elc files in my:compiled."
   (delete "." (delete ".." (directory-files (expand-file-name my:compiled) nil "\\.elc$"))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (defun compiled-config-exists? (file)
-;;   "If compiled FILE exists, return the filename otherwise nil."
-;;   (let ((compiled-files (get-config-compiled))
-;;         (path (file-truename (concat my:config "/" file)))
-;;         (has-compiled? (lambda (rem)
-;;                          (if (string= (file-name-sans-extension file)
-;;                                       (file-name-sans-extension (car rem)))
-;;                              file
-;;                            (if rem
-;;                                (funcall has-compiled? (cdr rem))
-;;                              nil)))))
-;;     (if (and compiled-files (file-exists-p path))
-;;         (funcall has-compiled? compiled-files)
-;;       nil))
-;;   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun config-exists? (file)
   "If config file exists, return T otherwise nil."
   (file-exists-p (file-truename (concat my:config "/" file))))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun config-compiled-exists? (file)
   "If compiled FILE exists, return T otherwise nil."
   (file-exists-p (file-truename (concat my:compiled "/"
                                         (file-name-sans-extension file) ".elc"))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun config-compile-update? (file)
@@ -110,6 +98,7 @@
       (rename-file (concat f "c") (concat my:compiled "/") t)))
   )
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun config-update-compiled ()
     "Check if my:compiled are out of date and recompile."
@@ -117,6 +106,34 @@
           (if (config-compile-update? file)
               (config-compile-file file)))
         (get-config-sources)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun config-load (file)
+  "Loads either FILE or compiled."
+  (if (and my:compiled-init
+           (config-compiled-exists? file))
+      (progn
+        (if (config-compile-update? file)
+            (config-compile-file file))
+        (load-file (expand-file-name (concat my:compiled "/"
+                                             (file-name-sans-extension file) ".elc"))))
+    (load-file (expand-file-name (concat my:config "/" file))))
+  )
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun load-directory (dir)
+  "Load all files from DIR excluding the current buffer. Excludes current buffer
+in case of loading an old elc file and replacing the current file."
+  (let ((load-it (lambda (f)
+                   (load-file (concat (file-name-as-directory dir) f)))
+                 ))
+    (mapc load-it (remove (buffer-file-name) 
+                          (remove (concat (buffer-file-name) "c")
+                                  (directory-files dir nil "\\.el[c]?$"))))))
+
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -132,12 +149,36 @@
                        (file-truename (buffer-file-name)))
               (if my:compiled-init
                   (progn (byte-compile-file (expand-file-name f))
-                         (load-file (expand-file-name (concat f "c"))))
+                         (load-file (expand-file-name (concat (file-name-sans-extension f) ".elc"))))
                 (load-file (expand-file-name f)))
             )) config-init-names)
   )
+;; Add hook to save function. 
 (add-hook 'after-save-hook 'config-init-save-load)
 
 
 ;;Load main init file
-(load-file (expand-file-name (concat my:config "/" "init.el")))
+(config-load "init.el")
+
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-enabled-themes '(wombat))
+ '(git-gutter:update-interval 5)
+ '(package-selected-packages
+   '(yaml-mode web-mode zzz-to-char which-key wgrep xref-js2 yasnippet-snippets yasnippet async magit tramp lsp-metals dap-mode lsp-ui deft org-roam cmake-font-lock popup google-translate ess window-numbering use-package string-inflection slime-company scala-mode sbt-mode rainbow-delimiters pyenv-mode powerline paredit origami org-bullets modern-cpp-font-lock json-mode indium hungry-delete google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy edit-server dired-rainbow define-word cuda-mode cpputils-cmake counsel-etags company-lsp cmake-mode clang-format beacon autopair auto-package-update auctex)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(company-preview ((t (:foreground "darkgray" :underline t))))
+ '(company-preview-common ((t (:inherit company-preview))))
+ '(company-tooltip ((t (:background "lightgray" :foreground "black"))))
+ '(company-tooltip-common ((((type x)) (:inherit company-tooltip :weight bold)) (t (:inherit company-tooltip))))
+ '(company-tooltip-common-selection ((((type x)) (:inherit company-tooltip-selection :weight bold)) (t (:inherit company-tooltip-selection))))
+ '(company-tooltip-selection ((t (:background "steelblue" :foreground "white"))))
+ '(which-func ((t (:foreground "#8fb28f")))))

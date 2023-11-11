@@ -1,9 +1,10 @@
 directory = /home/phetus/tor/incomplete
 session.path.set = ~/tor/session
+#directory.watch.added = "~/watch/", load.start
 
-schedule2 = watch,5,5,"load.start=watch/*.torrent,d.custom1.set=done"
+schedule2 = watch,5,5,"load.start_verbose=~/tor/watch/*.torrent"
 
 method.insert = d.get_data_full_path,simple,"branch=((d.is_multi_file)),((cat,(d.directory))),((cat,(d.directory),/,(d.name)))"
-method.insert = d.move_to_complete,simple,"d.directory.set=$argument.1=; execute=mkdir,-p,$argument.1=; execute=mv,-n,$argument.0=,$argument.1=; d.save_full_session="
-method.set_key = event.download.finished,move_complete,"d.move_to_complete=$d.get_data_full_path=,$d.custom1="
+# method.insert = d.move_to_complete,simple,"d.directory.set=$argument.1=; execute=mkdir,-p,$argument.1=; execute=mv,-n,$argument.0=,$argument.1=; d.save_full_session="
+# method.set_key = event.download.finished,move_complete,"d.move_to_complete=$d.get_data_full_path=,$d.custom1="
 

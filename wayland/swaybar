@@ -38,7 +38,10 @@ else
 	if ip addr | grep -q 'tun0:'; then
 		ssid="<<<$ssid>>>"
 	fi
-	ssid+=" - $signal_strength"
+	ssid+=" - $signal_strength - "
+	ssid+=$(hostname -i)
 fi
+
+
     
 echo $uptime_formatted '||' $ssid '||' $battery_status $battery_percentage '||' $master '||' $date_formatted

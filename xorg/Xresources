@@ -16,8 +16,11 @@ URxvt.boldFont:
 URxvt.font: xft:DejaVu Sans Mono:pixelsize=25
 URxvt.color4:   #00DDFF
 
-Emacs.FontBackend: xft,x
-Emacs.font:	DejaVu Sans Mono:size=12
+Emacs*Fontset-0: -bitstream-bitstream vera sans mono-medium-r-*-*-*-120-*-*-*-*-*-*\
+       mule-unicode-2500-33ff:-misc-fixed-medium-r-normal-*-13-*-*-*-*-*-iso10646-1,\
+       mule-unicode-e000-ffff:-misc-fixed-medium-r-normal-*-13-*-*-*-*-*-iso10646-1,\
+       mule-unicode-0100-24ff:-misc-fixed-medium-r-normal-*-13-*-*-*-*-*-iso10646-1
+Emacs*font: fontset-normal
 
 *background:		#000000
 *foreground:		#B2B2B2

@@ -94,3 +94,43 @@
               :map org-mode-map
               (("C-c n i" . org-roam-insert))
               (("C-c n I" . org-roam-insert-immediate))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Deft
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package deft
+  :bind ("<f8>" . deft)
+  :commands deft
+  :ensure t
+  :init
+  :custom
+  ;; Set the default directory
+  (deft-directory "~/org")
+  (deft-extensions '("md" "txt" "tex" "org"))
+  (deft-default-extension "org")
+  ;; de-couples filename and note title:
+  (deft-use-filename-as-title nil)
+  (deft-use-filter-string-for-filename t)
+  ;; disable auto-save
+  (deft-auto-save-interval -1.0)
+  ;; converts the filter string into a readable file-name using kebab-case:
+  (deft-file-naming-rules
+    '((noslash . "-")
+      (nospace . "-")
+      (case-fn . downcase)))
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Org-ref
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package org-ref
+  :config
+  :custom
+  (org-ref-completion-library 'org-ref-ivy-cite)
+  (org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex)
+  (org-ref-default-bibliography (list "/home/haozeke/GDrive/zotLib.bib"))
+  (org-ref-bibliography-notes "/home/haozeke/Git/Gitlab/Mine/Notes/bibnotes.org")
+  (org-ref-note-title-format "* TODO %y - %t\n :PROPERTIES:\n  :Custom_ID: %k\n  :NOTER_DOCUMENT: %F\n :ROAM_KEY: cite:%k\n  :AUTHOR: %9a\n  :JOURNAL: %j\n  :YEAR: %y\n  :VOLUME: %v\n  :PAGES: %p\n  :DOI: %D\n  :URL: %U\n :END:\n\n")
+  (org-ref-notes-directory "/home/haozeke/Git/Gitlab/Mine/Notes/")
+  (org-ref-notes-function 'orb-edit-notes)
+  )

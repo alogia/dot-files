@@ -64,10 +64,11 @@ call vundle#begin()
 	Plugin 'vhdirk/vim-cmake'
 	Plugin 'skywind3000/asyncrun.vim'
 	Plugin 'autozimu/LanguageClient-neovim'
+	Plugin 'lucapette/vim-ruby-doc'
 	
 	"Vim Functionality
 	Plugin 'ctrlpvim/ctrlp.vim'
-	Plugin 'ensime/ensime-vim'
+"	Plugin 'ensime/ensime-vim'
 	Plugin 'junegunn/fzf'
 	Plugin 'Valloric/YouCompleteMe'
 	Plugin 'scrooloose/nerdtree'
@@ -85,6 +86,9 @@ call vundle#begin()
 	Plugin 'plasticboy/vim-markdown'
 	Plugin 'elzr/vim-json'
 	Plugin 'stephpy/vim-yaml'
+
+	"Programming Plugins
+	Plugin 'jalvesaq/Nvim-R'
 call vundle#end()
 
 
@@ -133,3 +137,7 @@ let NERDTreeMapOpenInTab='gt'
 let g:ale_lint_on_save = 1
 let g:ale_lint_on_text_changed = 0
 
+
+"-----------ruby-doc-----------------
+"let g:ruby_doc_ruby_mapping='RB'
+"let g:ruby_doc_command='termite -e w3m'
