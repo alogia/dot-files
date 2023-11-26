@@ -244,6 +244,7 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (load-file "~/.emacs.d/config/global-keys.el")
 (load-file "~/.emacs.d/config/eshell.el")
+(load-file "~/.emacs.d/config/org.el")
 
 ;(load-directory my:compiled)
 
@@ -252,20 +253,12 @@ Repeated invocations toggle between the two most recently open buffers."
 (require 'dired-x)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; async - library for async/thread processing
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package async
-  :ensure t)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; s is used by origami, etc and sometimes during Emacs
 ;; upgrades disappears so we try to install it on its own.
 ;; s is an emacs general string manipulation library.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package s
   :ensure t)
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Ivy config
@@ -1375,7 +1368,7 @@ Repeated invocations toggle between the two most recently open buffers."
 ;; Auctex
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package tex-site
-  :ensure auctex
+;;:ensure auctex
   :mode ("\\.tex\\'" . latex-mode)
   ;; When we byte-compile we need to have the autoloads loaded in order to
   ;; properly get auctex working, otherwise auctex is not loaded correctly

@@ -5,6 +5,7 @@
 ;;
 ;;Org-mode
 ;;Org-roam
+
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -125,6 +126,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package org-ref
   :config
+  :ensure t
   :custom
   (org-ref-completion-library 'org-ref-ivy-cite)
   (org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex)

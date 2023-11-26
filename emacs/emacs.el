@@ -169,7 +169,7 @@ in case of loading an old elc file and replacing the current file."
  '(custom-enabled-themes '(wombat))
  '(git-gutter:update-interval 5)
  '(package-selected-packages
-   '(yaml-mode web-mode zzz-to-char which-key wgrep xref-js2 yasnippet-snippets yasnippet async magit tramp lsp-metals dap-mode lsp-ui deft org-roam cmake-font-lock popup google-translate ess window-numbering use-package string-inflection slime-company scala-mode sbt-mode rainbow-delimiters pyenv-mode powerline paredit origami org-bullets modern-cpp-font-lock json-mode indium hungry-delete google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy edit-server dired-rainbow define-word cuda-mode cpputils-cmake counsel-etags company-lsp cmake-mode clang-format beacon autopair auto-package-update auctex)))
+   '(org-ref writegood-mode yaml-mode web-mode zzz-to-char which-key wgrep xref-js2 yasnippet-snippets yasnippet magit tramp lsp-metals dap-mode lsp-ui deft org-roam cmake-font-lock popup google-translate ess window-numbering use-package string-inflection slime-company scala-mode sbt-mode rainbow-delimiters pyenv-mode powerline paredit origami org-bullets modern-cpp-font-lock json-mode indium hungry-delete google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy edit-server dired-rainbow define-word cuda-mode cpputils-cmake counsel-etags company-lsp cmake-mode clang-format beacon autopair auto-package-update)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
