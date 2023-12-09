@@ -14,8 +14,8 @@
 ;; Set packages to install
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq package-archives '(("melpa-stable" . "https://stable.melpa.org/packages/")
-                         ("melpa" . "https://melpa.org/packages/")
-                         ("gnu" . "http://elpa.gnu.org/packages/")))
+						 ("melpa" . "https://melpa.org/packages/")
+						 ("gnu" . "http://elpa.gnu.org/packages/")))
 ;; Disable package initialize after us.  We either initialize it
 ;; anyway in case of interpreted .emacs, or we don't want slow
 ;; initizlization in case of byte-compiled .emacs.elc.
@@ -28,31 +28,31 @@
   (setq use-package-verbose (not (bound-and-true-p byte-compile-current-file))))
 ;; Add the macro generated list of package.el loadpaths to load-path.
 (mapc #'(lambda (add) (add-to-list 'load-path add))
-      (eval-when-compile
-        (require 'package)
-        (package-initialize)
-        ;; Install use-package if not installed yet.
-        (unless (package-installed-p 'use-package)
-          (package-refresh-contents)
-          (package-install 'use-package))
-        ;; (require 'use-package)
-        (let ((package-user-dir-real (file-truename package-user-dir)))
-          ;; The reverse is necessary, because outside we mapc
-          ;; add-to-list element-by-element, which reverses.
-          (nreverse (apply #'nconc
-                           ;; Only keep package.el provided loadpaths.
-                           (mapcar #'(lambda (path)
-                                       (if (string-prefix-p package-user-dir-real path)
-                                           (list path)
-                                         nil))
-                                   load-path))))))
+	  (eval-when-compile
+		(require 'package)
+		(package-initialize)
+		;; Install use-package if not installed yet.
+		(unless (package-installed-p 'use-package)
+		  (package-refresh-contents)
+		  (package-install 'use-package))
+		;; (require 'use-package)
+		(let ((package-user-dir-real (file-truename package-user-dir)))
+		  ;; The reverse is necessary, because outside we mapc
+		  ;; add-to-list element-by-element, which reverses.
+		  (nreverse (apply #'nconc
+						   ;; Only keep package.el provided loadpaths.
+						   (mapcar #'(lambda (path)
+									   (if (string-prefix-p package-user-dir-real path)
+										 (list path)
+										 nil))
+								   load-path))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Start emacs server if not already running
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (if (and (fboundp 'server-running-p)
-         (not (server-running-p)))
-    (server-start))
+		 (not (server-running-p)))
+  (server-start))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; General Tweaks
@@ -99,7 +99,7 @@
 (setq backup-directory-alist `(("." . "~/.saves")))
 ;; Settings for searching
 (setq-default case-fold-search t ;case insensitive searches by default
-              search-highlight t) ;hilit matches when searching
+			  search-highlight t) ;hilit matches when searching
 ;; Highlight the line we are currently on
 (global-hl-line-mode t)
 (set-face-background 'hl-line "#372E2D")
@@ -130,7 +130,7 @@
 ;;    Abbreviations File
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq abbrev-file-name              ;; tell emacs where to read abbrev
-      "~/.emacs.d/abbreviations.el")  ;; definitions from...
+	  "~/.emacs.d/abbreviations.el")  ;; definitions from...
 (setq save-abbrevs t)                 ;; (ask) save abbrevs when files are saved
 (setq-default abbrev-mode t)          ;; turn it on for all modes
 
@@ -154,16 +154,16 @@
 
 ;; Highlight some keywords in prog-mode
 (add-hook 'prog-mode-hook
-          (lambda ()
-            ;; Highlighting in cmake-mode this way interferes with
-            ;; cmake-font-lock, which is something I don't yet understand.
-            (when (not (derived-mode-p 'cmake-mode))
-              (font-lock-add-keywords
-               nil
-               '(("\\<\\(FIXME\\|TODO\\|BUG\\|DONE\\)"
-                  1 font-lock-warning-face t))))
-            )
-          )
+		  (lambda ()
+			;; Highlighting in cmake-mode this way interferes with
+			;; cmake-font-lock, which is something I don't yet understand.
+			(when (not (derived-mode-p 'cmake-mode))
+			  (font-lock-add-keywords
+				nil
+				'(("\\<\\(FIXME\\|TODO\\|BUG\\|DONE\\)"
+				   1 font-lock-warning-face t))))
+			)
+		  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;     General Functions
@@ -172,7 +172,7 @@
 
 (defun switch-to-previous-buffer ()
   "Switch to previously open buffer.
-Repeated invocations toggle between the two most recently open buffers."
+  Repeated invocations toggle between the two most recently open buffers."
   (interactive)
   (switch-to-buffer (other-buffer (current-buffer) 1)))
 
@@ -185,7 +185,7 @@ Repeated invocations toggle between the two most recently open buffers."
   (open-line arg)
   (next-line 1)
   (when newline-and-indent
-    (indent-according-to-mode)))
+	(indent-according-to-mode)))
 
 ;; Behave like vi's O command
 (defun vi-open-previous-line (arg)
@@ -194,7 +194,7 @@ Repeated invocations toggle between the two most recently open buffers."
   (beginning-of-line)
   (open-line arg)
   (when newline-and-indent
-    (indent-according-to-mode)))
+	(indent-according-to-mode)))
 
 ;; Autoindent open-*-lines
 (defvar newline-and-indent t
@@ -216,18 +216,18 @@ Repeated invocations toggle between the two most recently open buffers."
 
 ;; so we can (require 'use-package) even in compiled emacs to e.g. read docs
 (use-package use-package
-  :commands use-package-autoload-keymap)
+			 :commands use-package-autoload-keymap)
 ;; Auto update packages once a week
 (use-package auto-package-update
-  :ensure t
-  :commands (auto-package-update-maybe)
-  :config
-  (setq auto-package-update-delete-old-versions t)
-  (setq auto-package-update-hide-results t)
-  (auto-package-update-maybe)
-  (add-hook 'auto-package-update-before-hook
-          (lambda () (message "I will update packages now")))
-  )
+			 :ensure t
+			 :commands (auto-package-update-maybe)
+			 :config
+			 (setq auto-package-update-delete-old-versions t)
+			 (setq auto-package-update-hide-results t)
+			 (auto-package-update-maybe)
+			 (add-hook 'auto-package-update-before-hook
+					   (lambda () (message "I will update packages now")))
+			 )
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -258,7 +258,7 @@ Repeated invocations toggle between the two most recently open buffers."
 ;; s is an emacs general string manipulation library.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package s
-  :ensure t)
+			 :ensure t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Ivy config
@@ -375,6 +375,10 @@ Repeated invocations toggle between the two most recently open buffers."
          ("C-r" . counsel-minibuffer-add)
          )
   :config
+						  (let ((done (where-is-internal #'ivy-done     ivy-minibuffer-map t))
+								        (alt  (where-is-internal #'ivy-alt-done ivy-minibuffer-map t)))
+							    (define-key counsel-find-file-map done #'ivy-alt-done)
+								    (define-key counsel-find-file-map alt  #'ivy-done))
   (if (executable-find "rg")
       ;; use ripgrep instead of grep because it's way faster
       (setq counsel-grep-base-command
@@ -1108,6 +1112,7 @@ Repeated invocations toggle between the two most recently open buffers."
     ;; Silence missing function warnings
     (declare-function global-hungry-delete-mode "hungry-delete.el"))
   :config
+  (setq hungry-delete-except-modes (append hungry-delete-except-modes '(minibuffer-mode)))
   (global-hungry-delete-mode t)
   )
 
