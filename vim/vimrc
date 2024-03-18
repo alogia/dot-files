@@ -58,6 +58,7 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 	Plugin 'VundleVim/Vundle.vim'
 
+	" Syntax
 	Plugin 'aouelete/sway-vim-syntax'
 	Plugin 'Shougo/vimproc.vim'
 	Plugin 'derekwyatt/vim-scala'
@@ -65,6 +66,8 @@ call vundle#begin()
 	Plugin 'skywind3000/asyncrun.vim'
 	Plugin 'autozimu/LanguageClient-neovim'
 	Plugin 'lucapette/vim-ruby-doc'
+	Plugin 'pic.vim'
+	Plugin 'vim-arduino-syntax'
 	
 	"Vim Functionality
 	Plugin 'ctrlpvim/ctrlp.vim'

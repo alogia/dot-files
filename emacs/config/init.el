@@ -58,6 +58,9 @@
 ;; General Tweaks
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; Supress comp warnings
+(setq native-comp-async-report-warnings-errors 'silent)
+
 (setq inhibit-splash-screen t)
 (scroll-bar-mode -1)
 (defvar my-font-size 85)

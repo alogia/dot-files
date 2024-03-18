@@ -41,7 +41,7 @@
  ("M-u"     . capitalize-word)
  ("C-/"     . undo)
  ("C-M-;"   . comment-region)
- ("C-x M-f" . project-find-file)
+ ("C-x M-f" . recentf)
  ("C-x C-x" . kill-buffer-and-window)
  ("C-o"     . other-window)
  )

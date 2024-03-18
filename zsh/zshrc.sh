@@ -64,3 +64,4 @@ source $HOME/.config/zsh/fzf
 #Set up python
 ############################################
 eval "$(pyenv init -)" 
+

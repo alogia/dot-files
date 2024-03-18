@@ -3,8 +3,9 @@
 #####################################
 
 ## Paths
-export GEM_HOME="$HOME/gems"
+export GEM_HOME="$HOME/.gem"
 export PATH="$PATH:$HOME/bin:$HOME/devel/bin:$(ruby -e 'print Gem.user_dir')/bin:$HOME/.local/bin/:$HOME/.cabal/bin"
+##export BUNDLE_PATH="$HOME/gem/bin"
 
 ## Python
 export PYENV_ROOT="$HOME/.pyenv"
@@ -29,6 +30,8 @@ export SDL_VIDEODRIVER=wayland
 export MOZ_ENABLE_WAYLAND=1
 #export QT_SCALE_FACTOR=2
 export QT_QPA_PLATFORMTHEME=qt5ct
+export USE_SYMENGINE=1
 
 ## Misc
 export QUOTING_STYLE=literal
+export _JAVA_AWT_WM_NONREPARENTING=1

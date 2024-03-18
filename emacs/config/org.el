@@ -82,19 +82,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Org-Roam
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package org-roam
-      :ensure t
-      :hook
-      (after-init . org-roam-mode)
-      :custom
-      (org-roam-directory "~/org/")
-      :bind (:map org-roam-mode-map
-              (("C-c n l" . org-roam)
-               ("C-c n f" . org-roam-find-file)
-               ("C-c n g" . org-roam-graph-show))
-              :map org-mode-map
-              (("C-c n i" . org-roam-insert))
-              (("C-c n I" . org-roam-insert-immediate))))
+;;(use-package org-roam
+;;   :ensure t
+;;   :hook
+;;  (after-init . org-roam-mode)
+;;  :custom
+;;   (org-roam-directory "~/org/")
+;;   :bind (:map org-roam-mode-map
+;;           (("C-c n l" . org-roam)
+;;             ("C-c n f" . org-roam-find-file)
+;;            ("C-c n g" . org-roam-graph-show))
+;;            :map org-mode-map
+;;             (("C-c n i" . org-roam-insert))
+;;              (("C-c n I" . org-roam-insert-immediate))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Deft
@@ -121,18 +121,3 @@
       (case-fn . downcase)))
   )
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Org-ref
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package org-ref
-  :config
-  :ensure t
-  :custom
-  (org-ref-completion-library 'org-ref-ivy-cite)
-  (org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex)
-  (org-ref-default-bibliography (list "/home/haozeke/GDrive/zotLib.bib"))
-  (org-ref-bibliography-notes "/home/haozeke/Git/Gitlab/Mine/Notes/bibnotes.org")
-  (org-ref-note-title-format "* TODO %y - %t\n :PROPERTIES:\n  :Custom_ID: %k\n  :NOTER_DOCUMENT: %F\n :ROAM_KEY: cite:%k\n  :AUTHOR: %9a\n  :JOURNAL: %j\n  :YEAR: %y\n  :VOLUME: %v\n  :PAGES: %p\n  :DOI: %D\n  :URL: %U\n :END:\n\n")
-  (org-ref-notes-directory "/home/haozeke/Git/Gitlab/Mine/Notes/")
-  (org-ref-notes-function 'orb-edit-notes)
-  )
