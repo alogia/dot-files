@@ -168,17 +168,7 @@ in case of loading an old elc file and replacing the current file."
  ;; If there is more than one, they won't work right.
  '(custom-enabled-themes '(wombat))
  '(git-gutter:update-interval 5)
- '(package-selected-packages
-   '(a auctex auto-package-update autopair beacon clang-format cmake-font-lock
-       company-lsp counsel-etags cpputils-cmake cuda-mode define-word deft
-       dired-rainbow edit-server elpy ess flycheck-pyflakes flyspell-correct-ivy
-       git-gutter google-c-style google-translate hungry-delete indium json-mode
-       lsp-metals lsp-ui magit markdown-preview-eww markdown-soma maxima
-       modern-cpp-font-lock org-bullets org-ref org-roam origami paredit
-       powerline pyenv-mode rainbow-delimiters sbt-mode session-async
-       slime-company spice-mode use-package verilog-ext versuri web-mode wgrep
-       which-key window-numbering writegood-mode xref-js2 yaml-mode
-       yasnippet-snippets zzz-to-char)))
+ '(package-selected-packages nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -190,4 +180,4 @@ in case of loading an old elc file and replacing the current file."
  '(company-tooltip-common ((((type x)) (:inherit company-tooltip :weight bold)) (t (:inherit company-tooltip))))
  '(company-tooltip-common-selection ((((type x)) (:inherit company-tooltip-selection :weight bold)) (t (:inherit company-tooltip-selection))))
  '(company-tooltip-selection ((t (:background "steelblue" :foreground "white"))))
- '(which-func ((t (:foreground "#8fb28f")))))
+ '(which-func ((t (:foreground "blue")))))

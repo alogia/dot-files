@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 ;;; package --- Summary - Init file for alogia
 
 
@@ -302,60 +303,101 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Spice 
+;; Spice and related setup
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(use-package gnuplot
+  :ensure t
+  :mode ("\\.gp\\'" . gnuplot-mode)
+  :config
+  ;; Use pngcairo by default (good fonts, antialiasing)
+  (setq gnuplot-terminal "pngcairo size 1000,600"))
+
+(add-hook 'gnuplot-mode-hook
+          (lambda ()
+            (add-hook 'after-save-hook #'gnuplot-send-buffer-to-gnuplot nil t)))
+
+
+(use-package csv-mode
+  :ensure t
+  :mode ("\\.csv\\'" . csv-mode))
 
 (use-package spice-mode
   :ensure t
-  :preface
-  ;; --- MELPA bootstrap (kept inside this use-package on purpose) ---
-  (with-eval-after-load 'package
-    (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t))
 
-  ;; --- tiny “run ngspice” helpers ---
-  (defun tyler/spice--deck-file ()
-    "Return an on-disk filename for the current SPICE deck, saving if needed."
-    (unless (buffer-file-name)
-      (user-error "This buffer isn't visiting a file; save it first"))
+  :preface
+  ;; ---------- helpers ----------
+  (defun tyler/spice--base-name ()
+    "Return base filename of current SPICE deck (no extension)."
+    (unless buffer-file-name
+      (user-error "Buffer is not visiting a file"))
     (save-buffer)
-    (buffer-file-name))
+    (file-name-sans-extension buffer-file-name))
 
   (defun tyler/spice-run-ngspice ()
-    "Run ngspice on the current deck in batch mode, producing .log + .raw."
+    "Run ngspice in batch mode on current deck."
     (interactive)
-    (let* ((deck (tyler/spice--deck-file))
-           (base (file-name-sans-extension deck))
-           (cmd  (format "ngspice -b -o %s.log -r %s.raw %s"
+    (let* ((base (tyler/spice--base-name))
+           (cmd  (format "ngspice -b -o %s.log %s.cir"
                          (shell-quote-argument base)
-                         (shell-quote-argument base)
-                         (shell-quote-argument deck))))
+                         (shell-quote-argument base))))
       (compile cmd)))
 
-  (defun tyler/spice-open-raw ()
-    "Open the .raw file that corresponds to the current deck (if present)."
+  (defun tyler/spice-run-gnuplot ()
+    "Run gnuplot on matching .gp file."
     (interactive)
-    (let* ((deck (tyler/spice--deck-file))
-           (raw  (concat (file-name-sans-extension deck) ".raw")))
-      (if (file-exists-p raw)
-          (find-file raw)
-        (user-error "No rawfile yet: %s (run ngspice first)" raw))))
+    (let* ((base (tyler/spice--base-name))
+           (gp   (concat base ".gp")))
+      (unless (file-exists-p gp)
+        (user-error "No gnuplot file: %s" gp))
+      (compile (format "gnuplot %s" (shell-quote-argument gp)))))
+
+  (defun tyler/spice-sim-and-plot ()
+  "Run ngspice, then run gnuplot after that ngspice run finishes."
+  (interactive)
+  (let* ((deck-buf (current-buffer))
+         (finish-fn nil))
+    (setq finish-fn
+          (lambda (buf status)
+            (when (and (buffer-live-p buf)
+                       (with-current-buffer buf
+                         (and (boundp 'compilation-arguments)
+                              (stringp (car compilation-arguments))
+                              (string-match-p "ngspice" (car compilation-arguments)))))
+              (remove-hook 'compilation-finish-functions finish-fn)
+              (when (string-match-p "finished" status)
+                (with-current-buffer deck-buf
+                  (tyler/spice-run-gnuplot))))))
+    (add-hook 'compilation-finish-functions finish-fn)
+    (tyler/spice-run-ngspice)))
+
+
+	(defun tyler/feh-open-plot ()
+ 	 "Open the PNG plot corresponding to the current SPICE/gnuplot file."
+  	(interactive)
+  	(unless buffer-file-name
+   	 (user-error "Buffer is not visiting a file"))
+  	(let* ((base (file-name-sans-extension buffer-file-name))
+    	     (png  (concat base ".png")))
+    	(unless (file-exists-p png)
+      	(user-error "Expected plot not found: %s" png))
+    	(start-process "feh" nil "feh" "--auto-zoom" png)))
+	
 
   :mode (("\\.\\(sp\\|spi\\|cir\\|ckt\\|net\\)\\'" . spice-mode))
 
   :hook
   (spice-mode . (lambda ()
-                 ;; SPICE comments are usually `* ...`
                  (setq-local comment-start "* "
-                             comment-end   "")
-                 ;; keybinds that feel “compilation-mode-ish”
-                 (local-set-key (kbd "C-c C-c") #'tyler/spice-run-ngspice)
-                 (local-set-key (kbd "C-c C-r") #'tyler/spice-open-raw)))
+                             comment-end "")
+                 ;; keybindings
+                 (local-set-key (kbd "C-c C-s") #'tyler/spice-run-ngspice)
+                 (local-set-key (kbd "C-c C-p") #'tyler/spice-run-gnuplot)
+                 (local-set-key (kbd "C-c C-c") #'tyler/spice-sim-and-plot)
+                 (local-set-key (kbd "C-c C-v") #'tyler/feh-open-plot)))
 
   :config
-  ;; A classic SPICE gotcha: first line is treated as title by many SPICEs,
-  ;; so don't rely on a `-*- mode -*-` header line in the deck itself.
-  ;; (Prefer auto-mode-alist / :mode like we do here.)
-  ;; :contentReference[oaicite:2]{index=2}
+  ;; SPICE decks treat first line as title; avoid mode headers inside files.
   )
 
 
