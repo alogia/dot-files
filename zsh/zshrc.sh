@@ -1,4 +1,4 @@
-	###########################################
+###########################################
 # 			ANTIGEN SETUP
 ###########################################
 ANTIGEN=0
@@ -33,6 +33,7 @@ if (( $ANTIGEN == 1 )); then
 	antigen theme af-magic
 	antigen apply
 fi
+
 ############################################
 #				EXPORTS
 ############################################
@@ -65,3 +66,9 @@ source $HOME/.config/zsh/fzf
 ############################################
 eval "$(pyenv init -)" 
 
+############################################
+#Set up pgp keys
+############################################
+eval $(keychain --eval --quiet ~/.ssh/github)
+
+export QSYS_ROOTDIR="/home/phetus/.cache/yay/quartus-free/pkg/quartus-free-quartus/opt/intelFPGA/24.1/quartus/sopc_builder/bin"

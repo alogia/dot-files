@@ -169,7 +169,16 @@ in case of loading an old elc file and replacing the current file."
  '(custom-enabled-themes '(wombat))
  '(git-gutter:update-interval 5)
  '(package-selected-packages
-   '(org-ref writegood-mode yaml-mode web-mode zzz-to-char which-key wgrep xref-js2 yasnippet-snippets yasnippet magit tramp lsp-metals dap-mode lsp-ui deft org-roam cmake-font-lock popup google-translate ess window-numbering use-package string-inflection slime-company scala-mode sbt-mode rainbow-delimiters pyenv-mode powerline paredit origami org-bullets modern-cpp-font-lock json-mode indium hungry-delete google-c-style git-gutter flyspell-correct-ivy flycheck-pyflakes elpy edit-server dired-rainbow define-word cuda-mode cpputils-cmake counsel-etags company-lsp cmake-mode clang-format beacon autopair auto-package-update)))
+   '(a auctex auto-package-update autopair beacon clang-format cmake-font-lock
+       company-lsp counsel-etags cpputils-cmake cuda-mode define-word deft
+       dired-rainbow edit-server elpy ess flycheck-pyflakes flyspell-correct-ivy
+       git-gutter google-c-style google-translate hungry-delete indium json-mode
+       lsp-metals lsp-ui magit markdown-preview-eww markdown-soma maxima
+       modern-cpp-font-lock org-bullets org-ref org-roam origami paredit
+       powerline pyenv-mode rainbow-delimiters sbt-mode session-async
+       slime-company spice-mode use-package verilog-ext versuri web-mode wgrep
+       which-key window-numbering writegood-mode xref-js2 yaml-mode
+       yasnippet-snippets zzz-to-char)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

@@ -23,6 +23,7 @@ export TEXDOC_VIEWER_PDF=evince
 
 ## Wayland support flags
 #export GDK_BACKEND=wayland
+export GTK_THEME=Adwaita:dark 
 export XCURSOR_SIZE=16
 export QT_QPA_PLATFORM=wayland-egl
 export CLUTTER_BACKEND=wayland
@@ -35,3 +36,6 @@ export USE_SYMENGINE=1
 ## Misc
 export QUOTING_STYLE=literal
 export _JAVA_AWT_WM_NONREPARENTING=1
+
+## SSH
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"

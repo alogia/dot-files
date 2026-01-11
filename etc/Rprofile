@@ -1,0 +1,5 @@
+options(repos = c(CRAN = "https://cran.rstudio.org"))
+
+if (interactive()) {
+  options(width = 120)
+}

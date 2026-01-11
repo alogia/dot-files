@@ -13,3 +13,5 @@ export GDK_BACKEND=wayland
 export PDFVIEWER=evince
 export TEXDOCVIEW_pdf=evince
 export TEXDOC_VIEWER_PDF=evince
+
+export QSYS_ROOTDIR="/home/phetus/.cache/yay/quartus-free/pkg/quartus-free-quartus/opt/intelFPGA/24.1/quartus/sopc_builder/bin"

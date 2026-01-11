@@ -44,6 +44,7 @@
  ("C-x M-f" . recentf)
  ("C-x C-x" . kill-buffer-and-window)
  ("C-o"     . other-window)
+ ("C-S-v"   . clipboard-yank)
  )
 
 ;; Rebind isearch mode map to conform to the same init sequence.

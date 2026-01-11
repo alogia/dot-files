@@ -168,6 +168,18 @@
 			)
 		  )
 
+;; Octave-mode Setup
+
+(setq auto-mode-alist
+      (cons '("\\.m$" . octave-mode) auto-mode-alist))
+
+(add-hook 'octave-mode-hook
+          (lambda ()
+            (abbrev-mode 1)
+            (auto-fill-mode 1)
+            (if (eq window-system 'x)
+                (font-lock-mode 1))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;     General Functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -251,9 +263,17 @@
 
 ;(load-directory my:compiled)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; async
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(use-package package
+			 :ensure t)
 
 ;; Load additional dired commands from Prelude
 (require 'dired-x)
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; s is used by origami, etc and sometimes during Emacs
@@ -279,6 +299,65 @@
   ;; Show #/total when scrolling buffers
   (setq ivy-count-format "%d/%d ")
   )
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Spice 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(use-package spice-mode
+  :ensure t
+  :preface
+  ;; --- MELPA bootstrap (kept inside this use-package on purpose) ---
+  (with-eval-after-load 'package
+    (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t))
+
+  ;; --- tiny “run ngspice” helpers ---
+  (defun tyler/spice--deck-file ()
+    "Return an on-disk filename for the current SPICE deck, saving if needed."
+    (unless (buffer-file-name)
+      (user-error "This buffer isn't visiting a file; save it first"))
+    (save-buffer)
+    (buffer-file-name))
+
+  (defun tyler/spice-run-ngspice ()
+    "Run ngspice on the current deck in batch mode, producing .log + .raw."
+    (interactive)
+    (let* ((deck (tyler/spice--deck-file))
+           (base (file-name-sans-extension deck))
+           (cmd  (format "ngspice -b -o %s.log -r %s.raw %s"
+                         (shell-quote-argument base)
+                         (shell-quote-argument base)
+                         (shell-quote-argument deck))))
+      (compile cmd)))
+
+  (defun tyler/spice-open-raw ()
+    "Open the .raw file that corresponds to the current deck (if present)."
+    (interactive)
+    (let* ((deck (tyler/spice--deck-file))
+           (raw  (concat (file-name-sans-extension deck) ".raw")))
+      (if (file-exists-p raw)
+          (find-file raw)
+        (user-error "No rawfile yet: %s (run ngspice first)" raw))))
+
+  :mode (("\\.\\(sp\\|spi\\|cir\\|ckt\\|net\\)\\'" . spice-mode))
+
+  :hook
+  (spice-mode . (lambda ()
+                 ;; SPICE comments are usually `* ...`
+                 (setq-local comment-start "* "
+                             comment-end   "")
+                 ;; keybinds that feel “compilation-mode-ish”
+                 (local-set-key (kbd "C-c C-c") #'tyler/spice-run-ngspice)
+                 (local-set-key (kbd "C-c C-r") #'tyler/spice-open-raw)))
+
+  :config
+  ;; A classic SPICE gotcha: first line is treated as title by many SPICEs,
+  ;; so don't rely on a `-*- mode -*-` header line in the deck itself.
+  ;; (Prefer auto-mode-alist / :mode like we do here.)
+  ;; :contentReference[oaicite:2]{index=2}
+  )
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Swiper config
@@ -320,6 +399,25 @@
     :ensure t
     :custom
     (slime-contribs '(slime-fancy slime-company))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Setup Maxima mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(use-package maxima
+			 :init
+			 (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0)
+	  maxima-display-maxima-buffer nil)
+			 (add-to-list 'interpreter-mode-alist
+		 (cons "maxima" 'maxima-mode))
+			 :mode ("\\.ma[cx]\\'" . maxima-mode)
+			 :ensure t
+			 :config
+			 (setq imaxima-use-maxima-mode-flag t)
+			 :autoload
+			 imath
+			 imaxima)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -674,6 +772,52 @@
   :hook
   (prog-mode . rainbow-delimiters-mode))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Verilog
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package verilog-mode
+   :config 
+   (setq verilog-tool 'verilog-simulator)
+ ;;  (setq verilog-simulator
+ ;;    "iverilog -g2012 -Wall -Wimplicit -Wportbind -o simv %f && vvp simv") 
+	(setq verilog-linter 
+		  "verilator --timing --lint-only")
+	(setq verilog-compiler
+		  "iverilog -g2012 -Wall -Wimplicit -Wportbind")
+  :ensure t
+  )
+
+;; Verilog-ext
+;;(use-package verilog-ext
+;;  :hook ((verilog-mode . verilog-ext-mode))
+;;  :ensure t
+;;  :init
+;;  ;; Can also be set through `M-x RET customize-group RET verilog-ext':
+;;  ;; Comment out/remove the ones you do not need
+;;  (setq verilog-ext-feature-list
+;;        '(font-lock
+;;          xref
+;;          capf
+;;          hierarchy
+;;          eglot
+;;          lsp
+;;          lsp-bridge
+;;          lspce
+;;          flycheck
+;;          beautify
+;;          navigation
+;;          template
+;;          formatter
+;;          compilation
+;;          imenu
+;;          which-func
+;;          hideshow
+;;          typedefs
+;;          time-stamp
+;;          block-end-comments
+;;          ports))
+;;  :config
+;;  (verilog-ext-mode-setup))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Beacon-mode: flash the cursor when switching buffers or scrolling
@@ -1376,7 +1520,7 @@
 ;; Auctex
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package tex-site
-;;:ensure auctex
+  :ensure auctex
   :mode ("\\.tex\\'" . latex-mode)
   ;; When we byte-compile we need to have the autoloads loaded in order to
   ;; properly get auctex working, otherwise auctex is not loaded correctly
